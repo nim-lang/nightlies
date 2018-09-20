@@ -29,22 +29,22 @@ install:
   - MKDIR %CD%\DIST\PCRE
 
   - nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory %CD%\DIST\PCRE
-  - IF not exist "%SQLITE_ARCHIVE%" appveyor DownloadFile "%SQLITE_URL%" -FileName "%SQLITE_ARCHIVE%"
+  - if not exist "%SQLITE_ARCHIVE%" appveyor DownloadFile "%SQLITE_URL%" -FileName "%SQLITE_ARCHIVE%"
   - 7z x -y "%SQLITE_ARCHIVE%" -o"%CD%\DIST"> nul
 
-  - IF not exist mingw.7z appveyor DownloadFile "%MINGW_URL%" -FileName "mingw.7z"
+  - if not exist mingw.7z appveyor DownloadFile "%MINGW_URL%" -FileName "mingw.7z"
 
   - 7z x -y "mingw.7z" -o"%CD%\DIST"> nul
 
-  - SET PATH=%CD%\DIST\%MINGW_DIR%\BIN;%CD%\BIN;%CD%\NIM\BIN;%PATH%
+  - SET PATH=%CD%\DIST\%MINGW_DIR%\bin;%CD%\bin;%CD%\nim\bin;%PATH%
   - git clone --depth 1 https://github.com/nim-lang/csources
   - cd csources
-  - IF "%PLATFORM%" == "x64" ( build64.bat ) else ( build.bat )
+  - if "%PLATFORM%" == "x64" ( build64.bat ) else ( build.bat )
   - cd ..
   - git clone --depth 1 https://github.com/nim-lang/nim.git
   - copy /y csources\bin\nim.exe nim\bin\nim.exe
 
-  - IF not exist "windeps.7z" appveyor DownloadFile "https://nim-lang.org/download/windeps.7z" -FileName "windeps.7z"
+  - if not exist "windeps.7z" appveyor DownloadFile "https://nim-lang.org/download/windeps.7z" -FileName "windeps.7z"
   - 7z x -y "windeps.7z" -o"nim\bin"> nul
 
 
