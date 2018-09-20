@@ -7,7 +7,7 @@ dist: trusty
 
 matrix:
   allow_failures:
-    - os: osx
+    - os: linux
 
 addons:
   apt:
@@ -39,3 +39,15 @@ script:
   - nim c koch
   - ./koch boot -d:release
   - ./koch testinstall
+  - ./koch doc0
+  - ./koch csource -d:release
+  - ./koch xz -d:release
+  - cd ..
+
+deploy:
+  provider: releases
+  api_key: "$GITHUB_OAUTH_TOKEN"
+  file: "nim/build/nim-0.18.1.tar.xz"
+  skip_cleanup: true
+  on:
+    tags: true
