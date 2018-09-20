@@ -38,7 +38,7 @@ script:
   - export PATH=$(pwd)/bin${PATH:+:$PATH}
   - nim c koch
   - ./koch boot -d:release
-  - ./koch testinstall
+  #- ./koch testinstall
   - ./koch doc0
   - ./koch csource -d:release
   - ./koch xz -d:release
