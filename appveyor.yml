@@ -57,13 +57,14 @@ build_script:
   - koch docs
   - nim c tools\winrelease
   - tools\winrelease
+  - cd ..
 
 deploy:
   release: nim-v$(appveyor_build_version)
   description: 'Nim built by Appveyor'
   provider: GitHub
   auth_token: $(GITHUB_OAUTH_TOKEN)
-  artifact: /nim\\web\\download\\.*\.zip/
+  artifact: /nim\\build\\.*\.zip/
   draft: false
   prerelease: false
   on:
