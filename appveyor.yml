@@ -58,6 +58,7 @@ build_script:
   - nim c tools\winrelease
   - tools\winrelease
   - cd ..
+  - appveyor PushArtifact nim\web\upload\download\nim-*.zip
 
 deploy:
   release: nim-appveyor # v$(appveyor_build_version)
