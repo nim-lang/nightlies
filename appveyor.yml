@@ -64,7 +64,7 @@ deploy:
   description: 'Nim built by Appveyor'
   provider: GitHub
   auth_token: $(GITHUB_OAUTH_TOKEN)
-  artifact: /nim\\build\\.*\.zip/
+  artifact: 'nim\web\upload\download\nim-*.zip'
   draft: false
   prerelease: false
   on:
