@@ -1,13 +1,20 @@
 sudo: false
+
 language: c
+
 os:
   - linux
   - osx
-dist: trusty
 
-matrix:
-  allow_failures:
-    - os: linux
+cache:
+  directories:
+    - nim
+
+env:
+  global:
+    - NIMREPO="https://github.com/nim-lang/Nim"
+    - NIMVER="$(git ls-remote ${NIMREPO} devel | cut -f 1)"
+    - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 addons:
   apt:
@@ -22,35 +29,69 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boehmgc; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sfml; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gnu-tar; fi
-
-before_script:
   - set -e
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then unset -f cd; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shell_session_update() { :; }; fi
-  - git clone --depth 1 https://github.com/nim-lang/csources.git
-  - cd csources
-  - sh build.sh
-  - cd ..
-  - git clone --depth 1 https://github.com/nim-lang/nim.git
-  - cp csources/bin/nim nim/bin/nim
+
+install:
+  - echo "NIMDIR = ${NIMDIR}"
+  - if [[ ! -f "${NIMDIR}/bin/nim" ]]; then export DO_DEPLOY=yes; fi
+  # After building nim, wipe csources to save on cache space.
+  - "{ [ -f ${NIMDIR}/bin/nim ]; } ||
+      ( rm -rf nim;
+        mkdir -p nim;
+        git clone --single-branch --branch devel --depth=1 ${NIMREPO} ${NIMDIR};
+        cd ${NIMDIR};
+        [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git;
+        cd csources;
+        echo '[phase 0] Building csources';
+        sh build.sh;
+        cd ..;
+        echo '[phase 1] Building koch';
+        ./bin/nim c koch;
+        echo '[phase 2] Building nim';
+        ./koch boot -d:release;
+        export PATH=\"${NIMDIR}/bin:${PATH}\";
+        echo '[phase 3] Running koch doc0';
+        ./koch doc0;
+        echo '[phase 4] Running koch csource';
+        ./koch csource -d:release;
+        echo '[phase 5] Running koch xz';
+        ./koch xz -d:release;
+        rm -rf csources;
+      )"
+  - if [ ! -z "${DO_DEPLOY+x}" ]; then echo "[cache check] New Nim commit found"; else echo "[cache check] No new Nim commit"; fi
+  # Ensure that NIMVERSHORT and PATH env vars are set whether or not
+  # cached nim build is used.
+  - cd "${NIMDIR}" && export NIMVERSHORT="$(git log --format=%h -1)"
+  - export PATH="${NIMDIR}/bin:${PATH}"
 
 script:
-  - cd nim
-  - export PATH=$(pwd)/bin${PATH:+:$PATH}
-  - nim c koch
-  - ./koch boot -d:release
-  #- ./koch testinstall
-  - ./koch doc0
-  - ./koch csource -d:release
-  - ./koch xz -d:release
-  - cd ..
+  - echo '[In script block]'
+  - nim --version
+
+before_deploy:
+  - cd "${TRAVIS_BUILD_DIR}"
+  - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
+  - export ASSETFILE="nim-${DEPLOY_VERSION}-${NIMVERSHORT}-${TRAVIS_OS_NAME}.tar.xz"
+  - cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}.tar.xz" "${ASSETFILE}"
+  - echo '[phase n-1] The deploy will start now ..'
 
 deploy:
   provider: releases
-  api_key: "$GITHUB_OAUTH_TOKEN"
-  file: "nim/build/nim-*.tar.xz"
-  file_glob: true
-
+  api_key: "${GITHUB_OAUTH_TOKEN}"
+  file: "${ASSETFILE}"
+  name: "Nightly build $(date +'%Y-%m-%d') ${NIMVERSHORT}"
+  body: >-
+    This nightly release is built using https://github.com/nim-lang/Nim/tree/${NIMVER}.
+    The *-linux.tar.xz release archive is built on linux, and likewise for the *-osx.tar.xz archive.
+    But either file can be used to build Nim on Linux, OSX and even Windows.
   skip_cleanup: true
   on:
+    condition: "! -z ${DO_DEPLOY+x}"
     tags: false
+
+notifications:
+  email:
+    on_success: never # default: change
+    on_failure: always # default: always
