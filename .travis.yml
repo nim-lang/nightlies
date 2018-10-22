@@ -108,7 +108,7 @@ deploy:
     But either file can be used to build Nim on Linux, OSX and even Windows.
   skip_cleanup: true
   on:
-    condition: "( ! -z ${DO_DEPLOY+x} ) && ( ! ${TRAVIS_TAG} =~ ^untagged- )"
+    condition: "! -z ${DO_DEPLOY+x}"
     tags: false
 
 notifications:
