@@ -1,5 +1,3 @@
-sudo: false
-
 language: c
 
 os:
@@ -19,55 +17,71 @@ env:
 addons:
   apt:
     packages:
-    - libcurl4-openssl-dev
-    - libsdl1.2-dev
-    - libgc-dev
-    - libsfml-dev
+      - libcurl4-openssl-dev
+      - libsdl1.2-dev
+      - libgc-dev
+      - libsfml-dev
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boehmgc; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sfml; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gnu-tar; fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]
+    then
+      brew update
+      brew install boehmgc
+      brew install sfml
+      brew install gnu-tar
+    fi
   - set -e
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then unset -f cd; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shell_session_update() { :; }; fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]
+    then
+      unset -f cd
+      shell_session_update() { :; }
+    fi
 
 install:
   - echo "NIMDIR = ${NIMDIR}"
-  - if [[ ! -f "${NIMDIR}/bin/nim" ]]; then export DO_DEPLOY=yes; fi
-  # After building nim, wipe csources to save on cache space.
-  - "{ [ -f ${NIMDIR}/bin/nim ]; } ||
-      ( rm -rf nim;
-        mkdir -p nim;
-        git clone --single-branch --branch devel --depth=1 ${NIMREPO} ${NIMDIR};
-        cd ${NIMDIR};
-        [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git;
-        cd csources;
-        echo '[phase 0] Building csources';
-        sh build.sh;
-        cd ..;
-        echo '[phase 1] Building koch';
-        ./bin/nim c koch;
-        echo '[phase 2] Building nim';
-        ./koch boot -d:release;
-        export PATH=\"${NIMDIR}/bin:${PATH}\";
-        echo '[phase 3] Running koch doc0';
-        ./koch doc0;
-        echo '[phase 4] Running koch csource';
-        ./koch csource -d:release;
-        echo '[phase 5] Running koch xz';
-        ./koch xz -d:release;
-        rm -rf csources;
-      )"
-  - if [ ! -z "${DO_DEPLOY+x}" ]; then echo "[cache check] New Nim commit found"; else echo "[cache check] No new Nim commit"; fi
+  - |
+    if [[ ! -f "${NIMDIR}/bin/nim" ]]
+    then
+      export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
+      rm -rf nim
+      mkdir -p nim
+      git clone --single-branch --branch devel --depth=1 "${NIMREPO}" "${NIMDIR}"
+      cd "${NIMDIR}" || exit
+      [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git
+      cd csources || exit
+      echo "[phase 0] Building csources"
+      sh build.sh
+      cd ..
+      echo "[phase 1] Building koch"
+      ./bin/nim c koch
+      echo "[phase 2] Building nim"
+      ./koch boot -d:release
+      export PATH="${NIMDIR}/bin:${PATH}"
+      echo "[phase 3] Running koch doc0"
+      ./koch doc0
+      echo "[phase 4] Running koch csource"
+      ./koch csource -d:release
+      echo "[phase 5] Running koch xz"
+      ./koch xz -d:release
+      # After building nim, wipe csources to save on cache space.
+      rm -rf csources
+    fi
   # Ensure that NIMVERSHORT and PATH env vars are set whether or not
   # cached nim build is used.
   - cd "${NIMDIR}" && export NIMVERSHORT="$(git log --format=%h -1)"
   - export PATH="${NIMDIR}/bin:${PATH}"
+  - |
+    if [[ ! -z "${DO_DEPLOY+x}" ]]
+    then
+      echo "[cache check] New Nim commit found"
+    else
+      echo "[cache check] No new Nim commit"
+    fi
 
 script:
-  - echo '[In script block]'
+  - echo "[In script block]"
   - nim --version
 
 before_deploy:
@@ -75,7 +89,7 @@ before_deploy:
   - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
   - export ASSETFILE="nim-${DEPLOY_VERSION}-${NIMVERSHORT}-${TRAVIS_OS_NAME}.tar.xz"
   - cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}.tar.xz" "${ASSETFILE}"
-  - echo '[phase n-1] The deploy will start now ..'
+  - echo "[phase n-1] The deploy will start now .."
 
 deploy:
   provider: releases
@@ -88,7 +102,7 @@ deploy:
     But either file can be used to build Nim on Linux, OSX and even Windows.
   skip_cleanup: true
   on:
-    condition: "! -z ${DO_DEPLOY+x}"
+    condition: "( ! -z ${DO_DEPLOY+x} ) && ( ! ${TRAVIS_TAG} =~ ^untagged- )"
     tags: false
 
 notifications:
