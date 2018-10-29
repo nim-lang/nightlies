@@ -54,11 +54,10 @@ build_script:
   - mkdir web\upload\download
   - bin\nim c koch
   - koch boot -d:release
-  - koch docs
   - nim c tools\winrelease
   - tools\winrelease
   - cd ..
-  - appveyor PushArtifact nim\web\upload\download\nim-*.zip
+  - ps: get-item .\nim\web\upload\download\nim-*.zip | % { Push-AppveyorArtifact $_.FullName }
 
 deploy:
   release: nim-appveyor # v$(appveyor_build_version)
