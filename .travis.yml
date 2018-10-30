@@ -93,7 +93,7 @@ script:
 before_deploy:
   - cd "${TRAVIS_BUILD_DIR}"
   - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
-  - export ASSETFILE="nim-${DEPLOY_VERSION}-${NIMVERSHORT}-${TRAVIS_OS_NAME}.tar.xz"
+  - export ASSETFILE="nim-${DEPLOY_VERSION}-${TRAVIS_OS_NAME}.tar.xz"
   - cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}.tar.xz" "${ASSETFILE}"
   - echo "[phase n-1] The deploy will start now .."
 
