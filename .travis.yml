@@ -1,8 +1,25 @@
 language: c
 
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: linux
+      env: NIMBRANCH=devel
+
+    - os: osx
+      env: NIMBRANCH=devel
+
+    - os: windows
+      env: NIMBRANCH=devel
+
+    - os: linux
+      env: NIMBRANCH=version-0-19
+
+    - os: osx
+      env: NIMBRANCH=version-0-19
+
+    - os: windows
+      env: NIMBRANCH=version-0-19
+
 
 cache:
   directories:
@@ -11,7 +28,7 @@ cache:
 env:
   global:
     - NIMREPO="https://github.com/nim-lang/Nim"
-    - NIMVER="$(git ls-remote ${NIMREPO} devel | cut -f 1)"
+    - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
     - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
@@ -53,12 +70,17 @@ install:
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
       rm -rf nim
       mkdir -p nim
-      git clone --single-branch --branch devel --depth=1 "${NIMREPO}" "${NIMDIR}"
+      git clone --single-branch --branch "${NIMBRANCH}" --depth=1 "${NIMREPO}" "${NIMDIR}"
       cd "${NIMDIR}" || exit
       [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git
       cd csources || exit
       echo "[phase 0] Building csources"
-      sh build.sh
+      if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+      then
+        cmd "/C build64.bat"
+      else
+        sh build.sh
+      end
       cd ..
       echo "[phase 1] Building koch"
       ./bin/nim c koch
@@ -69,8 +91,15 @@ install:
       ./koch doc0
       echo "[phase 4] Running koch csource"
       ./koch csource -d:release
-      echo "[phase 5] Running koch xz"
-      ./koch xz -d:release
+      if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+      then
+        echo "[phase 5] Running tools/winrelease"
+        ./bin/nim c tools/winrelease
+        ./tools/winrelease
+      else
+        echo "[phase 5] Running koch xz"
+        ./koch xz -d:release
+      fi
       # After building nim, wipe csources to save on cache space.
       rm -rf csources
     fi
@@ -93,8 +122,16 @@ script:
 before_deploy:
   - cd "${TRAVIS_BUILD_DIR}"
   - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
-  - export ASSETFILE="nim-${DEPLOY_VERSION}-${TRAVIS_OS_NAME}.tar.xz"
-  - cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}.tar.xz" "${ASSETFILE}"
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+    then
+      export ZIPSUFFIX="_x64.zip"
+    else
+      export ZIPSUFFIX=".tar.xz"
+    fi
+
+  - export ASSETFILE="nim-${DEPLOY_VERSION}-${TRAVIS_OS_NAME}${ZIPSUFFIX}"
+  - cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
   - echo "[phase n-1] The deploy will start now .."
 
 deploy:
