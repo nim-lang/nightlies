@@ -47,40 +47,36 @@ addons:
 
 before_install:
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]
-    then
-      brew update
-      brew install boehmgc
-      brew install sfml
-      brew install gnu-tar
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update;
+      brew install boehmgc;
+      brew install sfml;
+      brew install gnu-tar;
     fi
   - set -e
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]
-    then
-      unset -f cd
-      shell_session_update() { :; }
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      unset -f cd;
+      shell_session_update() { :; };
     fi
 
 install:
   - echo "NIMDIR = ${NIMDIR}"
   - |
-    if [[ ! -f "${NIMDIR}/bin/nim" ]]
-    then
-      export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
-      rm -rf nim
-      mkdir -p nim
-      git clone --single-branch --branch "${NIMBRANCH}" --depth=1 "${NIMREPO}" "${NIMDIR}"
-      cd "${NIMDIR}" || exit
-      [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git
-      cd csources || exit
-      echo "[phase 0] Building csources"
-      if [[ "$TRAVIS_OS_NAME" == "windows" ]]
-      then
-        cmd "/C build64.bat"
+    if [[ ! -f "${NIMDIR}/bin/nim" ]]; then
+      export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}";
+      rm -rf nim;
+      mkdir -p nim;
+      git clone --single-branch --branch "${NIMBRANCH}" --depth=1 "${NIMREPO}" "${NIMDIR}";
+      cd "${NIMDIR}" || exit;
+      [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git ;
+      cd csources || exit;
+      echo "[phase 0] Building csources";
+      if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+        cmd "/C build64.bat";
       else
-        sh build.sh
-      end
+        sh build.sh;
+      fi
       cd ..
       echo "[phase 1] Building koch"
       ./bin/nim c koch
@@ -91,17 +87,16 @@ install:
       ./koch doc0
       echo "[phase 4] Running koch csource"
       ./koch csource -d:release
-      if [[ "$TRAVIS_OS_NAME" == "windows" ]]
-      then
-        echo "[phase 5] Running tools/winrelease"
-        ./bin/nim c tools/winrelease
-        ./tools/winrelease
+      if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+        echo "[phase 5] Running tools/winrelease";
+        ./bin/nim c tools/winrelease;
+        ./tools/winrelease;
       else
-        echo "[phase 5] Running koch xz"
-        ./koch xz -d:release
+        echo "[phase 5] Running koch xz";
+        ./koch xz -d:release;
       fi
       # After building nim, wipe csources to save on cache space.
-      rm -rf csources
+      rm -rf csources;
     fi
   # Ensure that NIMVERSHORT and PATH env vars are set whether or not
   # cached nim build is used.
