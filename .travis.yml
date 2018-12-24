@@ -7,28 +7,44 @@ cache:
 matrix:
   include:
     - os: linux
-      env: NIMBRANCH=devel
+      env:
+        - NIMBRANCH=devel
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
     - os: osx
-      env: NIMBRANCH=devel
+      env:
+        - NIMBRANCH=devel
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
     - os: windows
-      env: NIMBRANCH=devel
+      env:
+        - NIMBRANCH=devel
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
     - os: linux
-      env: NIMBRANCH=version-0-19
+      env:
+        - NIMBRANCH=version-0-19
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
     - os: osx
-      env: NIMBRANCH=version-0-19
+      env:
+        - NIMBRANCH=version-0-19
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
     - os: windows
-      env: NIMBRANCH=version-0-19
+      env:
+        - NIMBRANCH=version-0-19
+        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 env:
   global:
     - NIMREPO="https://github.com/nim-lang/Nim"
-    - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-    - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
   only:
