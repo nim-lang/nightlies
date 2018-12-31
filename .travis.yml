@@ -4,47 +4,19 @@ cache:
   directories:
     - nim
 
-matrix:
-  include:
-    - os: linux
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: osx
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: windows
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: linux
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: osx
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: windows
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+os
+  - linux
+  - osx
+  - windows
 
 env:
+  matrix:
+    - NIMBRANCH=devel
+    - NIMBRANCH=version-0-19
   global:
     - NIMREPO="https://github.com/nim-lang/Nim"
+    - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+    - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
   only:
@@ -93,6 +65,8 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         cmd "/C build64.bat"
+        powershell wget https://nim-lang.org/download/dlls.zip -OutFile dlls.zip
+        powershell -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('dlls.zip', 'bin'); }"
       else
         sh build.sh
       fi
