@@ -13,10 +13,11 @@ env:
   matrix:
     - NIMBRANCH=devel
     - NIMBRANCH=version-0-19
-  global:
-    - NIMREPO="https://github.com/nim-lang/Nim"
-    - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-    - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+
+env:
+  - NIMREPO="https://github.com/nim-lang/Nim"
+  - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+  - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
   only:
