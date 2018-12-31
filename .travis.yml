@@ -10,11 +10,11 @@ os:
   - windows
 
 env:
-  matrix:
-    - NIMBRANCH=devel
-    - NIMBRANCH=version-0-19
   global:
     - NIMREPO="https://github.com/nim-lang/Nim"
+  matrix:
+    - NIMBRANCH=devel NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+    - NIMBRANCH=version-0-19 NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
   only:
@@ -45,15 +45,6 @@ before_install:
     then
       unset -f cd
       shell_session_update() { :; }
-    fi
-  - |
-    if [[ "$TRAVIS_OS_NAME" == "windows" ]]
-    then
-      set NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-      set NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-    else
-      export NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-      export NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
     fi
 
 install:
