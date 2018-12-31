@@ -63,8 +63,8 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         cmd "/C build64.bat"
-        powershell wget https://nim-lang.org/download/dlls.zip -OutFile dlls.zip
-        powershell -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('dlls.zip', 'bin'); }"
+        wget https://nim-lang.org/download/dlls.zip
+        7z x -y "dlls.zip" -o"../bin" > nul
       else
         sh build.sh
       fi
