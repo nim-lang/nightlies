@@ -4,47 +4,17 @@ cache:
   directories:
     - nim
 
-matrix:
-  include:
-    - os: linux
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: osx
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: windows
-      env:
-        - NIMBRANCH=devel
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: linux
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: osx
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-
-    - os: windows
-      env:
-        - NIMBRANCH=version-0-19
-        - NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
-        - NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+os:
+  - windows
+  - linux
+  - osx
 
 env:
   global:
     - NIMREPO="https://github.com/nim-lang/Nim"
+  matrix:
+    - NIMBRANCH=devel NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+    - NIMBRANCH=version-0-19 NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 
 branches:
   only:
@@ -93,30 +63,34 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         cmd "/C build64.bat"
+        wget -nv https://nim-lang.org/download/dlls.zip
+        7z x -y "dlls.zip" -o"../bin" > nul
       else
         sh build.sh
       fi
       cd ..
-      echo "[phase 1] Building koch"
-      ./bin/nim c koch
-      echo "[phase 2] Building nim"
-      ./koch boot -d:release
-      export PATH="${NIMDIR}/bin:${PATH}"
-      echo "[phase 3] Running koch doc0"
-      ./koch doc0
-      echo "[phase 4] Running koch csource"
-      ./koch csource -d:release
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        echo "[phase 5] Running tools/winrelease"
+        echo "[phase 1] Running tools/winrelease"
         ./bin/nim c tools/winrelease
-        ./tools/winrelease
+        mkdir -p web/upload/download
+        cp tools/winrelease.exe .
+        ./winrelease
       else
+        echo "[phase 1] Building koch"
+        ./bin/nim c koch
+        echo "[phase 2] Building nim"
+        ./koch boot -d:release
+        export PATH="${NIMDIR}/bin:${PATH}"
+        echo "[phase 3] Running koch doc0"
+        ./koch doc0
+        echo "[phase 4] Running koch csource"
+        ./koch csource -d:release
         echo "[phase 5] Running koch xz"
         ./koch xz -d:release
+        # After building nim, wipe csources to save on cache space.
+        rm -rf csources
       fi
-      # After building nim, wipe csources to save on cache space.
-      rm -rf csources
     fi
   # Ensure that NIMVERSHORT and PATH env vars are set whether or not
   # cached nim build is used.
