@@ -4,7 +4,7 @@ cache:
   directories:
     - nim
 
-os
+os:
   - linux
   - osx
   - windows
