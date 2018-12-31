@@ -5,9 +5,9 @@ cache:
     - nim
 
 os:
+  - windows
   - linux
   - osx
-  - windows
 
 env:
   global:
