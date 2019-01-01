@@ -69,28 +69,28 @@ install:
         sh build.sh
       fi
       cd ..
+      echo "[phase 1] Building koch"
+      ./bin/nim c koch
+      echo "[phase 2] Building nim"
+      ./koch boot -d:release
+      export PATH="${NIMDIR}/bin:${PATH}"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        echo "[phase 1] Running tools/winrelease"
+        echo "[phase 3] Running tools/winrelease"
         ./bin/nim c tools/winrelease
         mkdir -p web/upload/download
         cp tools/winrelease.exe .
         ./winrelease
       else
-        echo "[phase 1] Building koch"
-        ./bin/nim c koch
-        echo "[phase 2] Building nim"
-        ./koch boot -d:release
-        export PATH="${NIMDIR}/bin:${PATH}"
         echo "[phase 3] Running koch doc0"
         ./koch doc0
         echo "[phase 4] Running koch csource"
         ./koch csource -d:release
         echo "[phase 5] Running koch xz"
         ./koch xz -d:release
-        # After building nim, wipe csources to save on cache space.
-        rm -rf csources
       fi
+      # After building nim, wipe csources to save on cache space.
+      rm -rf csources
     fi
   # Ensure that NIMVERSHORT and PATH env vars are set whether or not
   # cached nim build is used.
