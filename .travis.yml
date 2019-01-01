@@ -63,7 +63,7 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         cmd "/C build64.bat"
-        wget https://nim-lang.org/download/dlls.zip
+        wget -nv https://nim-lang.org/download/dlls.zip
         7z x -y "dlls.zip" -o"../bin" > nul
       else
         sh build.sh
@@ -82,7 +82,8 @@ install:
       then
         echo "[phase 5] Running tools/winrelease"
         ./bin/nim c tools/winrelease
-        ./tools/winrelease
+        copy tools/winrelease.exe .
+        ./winrelease
       else
         echo "[phase 5] Running koch xz"
         ./koch xz -d:release
