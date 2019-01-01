@@ -82,6 +82,7 @@ install:
       then
         echo "[phase 5] Running tools/winrelease"
         ./bin/nim c tools/winrelease
+        mkdir web/upload/download
         cp tools/winrelease.exe .
         ./winrelease
       else
