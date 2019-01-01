@@ -82,7 +82,7 @@ install:
       then
         echo "[phase 5] Running tools/winrelease"
         ./bin/nim c tools/winrelease
-        copy tools/winrelease.exe .
+        cp tools/winrelease.exe .
         ./winrelease
       else
         echo "[phase 5] Running koch xz"
