@@ -6,11 +6,21 @@ os:
   - osx
 
 env:
-  global:
-    - NIMREPO="https://github.com/nim-lang/Nim"
-  matrix:
-    - NIMBRANCH=devel NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
-    - NIMBRANCH=version-0-19 NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)" NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
+  - NIMBRANCH=devel ARCH=32
+  - NIMBRANCH=devel ARCH=64
+  - NIMBRANCH=version-0-19 ARCH=32
+  - NIMBRANCH=version-0-19 ARCH=64
+
+matrix:
+  exclude:
+    - os: linux
+      env: NIMBRANCH=devel ARCH=32
+    - os: linux
+      env: NIMBRANCH=version-0-19 ARCH=32
+    - os: osx
+      env: NIMBRANCH=devel ARCH=32
+    - os: osx
+      env: NIMBRANCH=version-0-19 ARCH=32
 
 branches:
   only:
@@ -35,7 +45,8 @@ before_cache:
 
 cache:
   directories:
-    - nim
+    - $TRAVIS_BUILD_DIR/nim
+    - $TRAVIS_BUILD_DIR/mingw
     - $HOME/Library/Caches/Homebrew
 
 before_install:
@@ -54,11 +65,31 @@ before_install:
       unset -f cd
       shell_session_update() { :; }
     fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+    then
+      if [[ ! -d "${TRAVIS_BUILD_DIR}/mingw/mingw${ARCH}" ]]
+      then
+        wget -nv "https://nim-lang.org/download/mingw${ARCH}-6.3.0.7z"
+        7z x -y "mingw${ARCH}-6.3.0.7z" -o"${TRAVIS_BUILD_DIR}/mingw" > nul
+      fi
+      export PATH="${TRAVIS_BUILD_DIR}/mingw/mingw${ARCH}/bin:${PATH}"
+    fi
 
 install:
+  - export NIMREPO="https://github.com/nim-lang/Nim"
+  - export NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
+  - export NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
   - echo "NIMDIR = ${NIMDIR}"
   - |
-    if [[ ! -f "${NIMDIR}/bin/nim" ]]
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+    then
+      export NIMEXE="${NIMDIR}/bin/nim.exe"
+    else
+      export NIMEXE="${NIMDIR}/bin/nim"
+    fi
+  - |
+    if [[ ! -f "${NIMEXE}" ]]
     then
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
       rm -rf nim
@@ -70,9 +101,10 @@ install:
       echo "[phase 0] Building csources"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        cmd "/C build64.bat"
+        cmd "/C build.bat"
         wget -nv https://nim-lang.org/download/dlls.zip
         7z x -y "dlls.zip" -o"../bin" > nul
+        rm -rf dlls.zip
       else
         sh build.sh
       fi
@@ -122,7 +154,7 @@ before_deploy:
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
     then
-      export ZIPSUFFIX="_x64.zip"
+      export ZIPSUFFIX="_x${ARCH}.zip"
     else
       export ZIPSUFFIX=".tar.xz"
     fi
