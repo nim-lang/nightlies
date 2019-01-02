@@ -45,8 +45,8 @@ before_cache:
 
 cache:
   directories:
-    - nim
-    - mingw
+    - $TRAVIS_BUILD_DIR/nim
+    - $TRAVIS_BUILD_DIR/mingw
     - $HOME/Library/Caches/Homebrew
 
 before_install:
