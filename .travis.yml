@@ -30,11 +30,13 @@ branches:
 
 addons:
   apt:
+    update: true
     packages:
       - libcurl4-openssl-dev
       - libsdl1.2-dev
       - libgc-dev
       - libsfml-dev
+      - nodejs
 
 before_cache:
   - |
@@ -57,6 +59,7 @@ before_install:
       brew install boehmgc
       brew install sfml
       brew install gnu-tar
+      brew upgrade node
     fi
   - set -e
   - |
@@ -128,6 +131,8 @@ install:
         ./koch csource -d:release
         echo "[phase 5] Running koch xz"
         ./koch xz -d:release
+        echo "[phase 6] Running koch testinstall"
+        ./koch testinstall
       fi
       # After building nim, wipe csources to save on cache space.
       rm -rf csources
