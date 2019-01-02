@@ -1,8 +1,12 @@
 language: c
 
+before_cache:
+  - brew cleanup
+
 cache:
   directories:
     - nim
+    - $HOME/Library/Caches/Homebrew
 
 os:
   - windows
