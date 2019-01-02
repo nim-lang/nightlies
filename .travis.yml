@@ -123,7 +123,7 @@ install:
         ./winrelease
       else
         echo "[phase 3] Running koch doc0"
-        ./koch doc0
+        ./koch doc
         echo "[phase 4] Running koch csource"
         ./koch csource -d:release
         echo "[phase 5] Running koch xz"
