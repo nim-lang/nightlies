@@ -68,10 +68,10 @@ before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
     then
-      if [[ ! -d "mingw" ]]
+      if [[ ! -d "${TRAVIS_BUILD_DIR}/mingw/mingw${ARCH}" ]]
       then
-        wget "https://nim-lang.org/download/mingw${ARCH}-6.3.0.7z"
-        7z x -y "mingw${ARCH}-6.3.0.7z" -o"mingw" > nul
+        wget -nv "https://nim-lang.org/download/mingw${ARCH}-6.3.0.7z"
+        7z x -y "mingw${ARCH}-6.3.0.7z" -o"${TRAVIS_BUILD_DIR}/mingw" > nul
       fi
       export PATH="${TRAVIS_BUILD_DIR}/mingw/mingw${ARCH}/bin:${PATH}"
     fi
@@ -101,7 +101,7 @@ install:
       echo "[phase 0] Building csources"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        cmd "/C build.bat"
+        cmd "/C build${ARCH}.bat"
         wget -nv https://nim-lang.org/download/dlls.zip
         7z x -y "dlls.zip" -o"../bin" > nul
         rm -rf dlls.zip
