@@ -101,7 +101,7 @@ install:
       echo "[phase 0] Building csources"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        cmd "/C build${ARCH}.bat"
+        cmd "/C build.bat"
         wget -nv https://nim-lang.org/download/dlls.zip
         7z x -y "dlls.zip" -o"../bin" > nul
         rm -rf dlls.zip
