@@ -184,7 +184,7 @@ deploy:
   provider: releases
   api_key: "${GITHUB_OAUTH_TOKEN}"
   file: "${ASSETFILE}"
-  name: "v${DEPLOY_VERSION}-b${NIMBRANCH}-${NIMVERSHORT} nightly build"
+  name: "v${DEPLOY_VERSION}-${NIMVERSHORT} nightly build"
   body: >-
     This nightly release was built on $(date +'%Y-%m-%d') using https://github.com/nim-lang/Nim/tree/${NIMVER}.
     The Windows zips contain platform specific binaries whereas the the Linux and OSX archives contain
