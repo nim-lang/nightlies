@@ -80,6 +80,7 @@ before_install:
     fi
 
 install:
+  - export BUILD_DATE=$(date +'%Y-%m-%d')
   - export NIMREPO="https://github.com/nim-lang/Nim"
   - export NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
   - export NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
@@ -175,7 +176,7 @@ before_deploy:
 
   - git config --local user.name "${GIT_TAG_USER_NAME}"
   - git config --local user.email "${GIT_TAG_USER_EMAIL}"
-  - export TRAVIS_TAG="v${DEPLOY_VERSION}-${NIMVERSHORT}"
+  - export TRAVIS_TAG="${NIMBRANCH}-${BUILD_DATE}-${NIMVERSHORT}"
   - git tag "${TRAVIS_TAG}" || echo "${TRAVIS_TAG} already exists"
 
   - echo "[phase n-1] The deploy will start now .."
@@ -184,9 +185,9 @@ deploy:
   provider: releases
   api_key: "${GITHUB_OAUTH_TOKEN}"
   file: "${ASSETFILE}"
-  name: "v${DEPLOY_VERSION}-${NIMVERSHORT} nightly build"
+  name: "${TRAVIS_TAG} nightly build"
   body: >-
-    This nightly release was built on $(date +'%Y-%m-%d') using https://github.com/nim-lang/Nim/tree/${NIMVER}.
+    This nightly release was built on ${BUILD_DATE} using https://github.com/nim-lang/Nim/tree/${NIMVER}.
     The Windows zips contain platform specific binaries whereas the the Linux and OSX archives contain
     pre-packaged source that can be used to build Nim on Linux, OSX and even Windows.
 
