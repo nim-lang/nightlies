@@ -1,15 +1,15 @@
 language: c
 
 env:
-  - NIMBRANCH=devel ARCH=32
   - NIMBRANCH=devel ARCH=64
-  - NIMBRANCH=version-0-19 ARCH=32
+  - NIMBRANCH=devel ARCH=32
   - NIMBRANCH=version-0-19 ARCH=64
+  - NIMBRANCH=version-0-19 ARCH=32
 
 os:
-  - windows
   - linux
   - osx
+  - windows
 
 matrix:
   exclude:
