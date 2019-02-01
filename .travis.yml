@@ -95,7 +95,6 @@ install:
   - |
     if [[ ! -f ${NIMEXE} ]]
     then
-      ls -lR
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
       rm -rf nim
       mkdir -p nim
