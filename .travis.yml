@@ -89,9 +89,14 @@ install:
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
     then
       export NIMEXE="${NIMDIR}/bin/nim.exe"
+      echo "Windows path to nim.exe"
     else
       export NIMEXE="${NIMDIR}/bin/nim"
+      echo "NON windows path to nim.exe"
     fi
+  - ls -l ${NIMDIR}/bin
+  - ls -l ${NIMEXE}
+  - echo ${NIMEXE}
   - |
     if [[ ! -f "${NIMEXE}" ]]
     then
@@ -176,7 +181,7 @@ before_deploy:
 
   - git config --local user.name "${GIT_TAG_USER_NAME}"
   - git config --local user.email "${GIT_TAG_USER_EMAIL}"
-  - export TRAVIS_TAG="${NIMBRANCH}-${BUILD_DATE}-${NIMVERSHORT}"
+  - export TRAVIS_TAG="${BUILD_DATE}-${NIMBRANCH}-${NIMVERSHORT}"
   - git tag "${TRAVIS_TAG}" || echo "${TRAVIS_TAG} already exists"
 
   - echo "[phase n-1] The deploy will start now .."
