@@ -89,17 +89,13 @@ install:
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
     then
       export NIMEXE="${NIMDIR}/bin/nim.exe"
-      echo "Windows path to nim.exe"
     else
       export NIMEXE="${NIMDIR}/bin/nim"
-      echo "NON windows path to nim.exe"
     fi
-  - ls -l ${NIMDIR}/bin
-  - ls -l ${NIMEXE}
-  - echo ${NIMEXE}
   - |
-    if [[ ! -f "${NIMEXE}" ]]
+    if [[ ! -f ${NIMEXE} ]]
     then
+      ls -lR
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
       rm -rf nim
       mkdir -p nim
