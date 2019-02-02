@@ -169,13 +169,13 @@ install:
     else
       echo "[cache check] No new Nim commit"
     fi
+  - cd "${TRAVIS_BUILD_DIR}"
 
 script:
   - echo "[In script block]"
   - nim --version
 
 before_deploy:
-  - cd "${TRAVIS_BUILD_DIR}"
   - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
