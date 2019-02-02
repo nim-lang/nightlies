@@ -47,8 +47,8 @@ before_cache:
 
 cache:
   directories:
-    - $TRAVIS_BUILD_DIR/nim
-    - $TRAVIS_BUILD_DIR/mingw
+    - nim
+    - mingw
     - $HOME/Library/Caches/Homebrew
 
 before_install:
@@ -93,16 +93,18 @@ install:
       export NIMEXE="${NIMDIR}/bin/nim"
     fi
   - |
-    if [[ ! -f "${NIMEXE}" ]]
+    if [[ ! -f ${NIMEXE} ]]
     then
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
+      ls -l ${TRAVIS_BUILD_DIR}/nim || echo "No nim directory"
       rm -rf nim
       mkdir -p nim
       git clone --single-branch --branch "${NIMBRANCH}" --depth=1 "${NIMREPO}" "${NIMDIR}"
       cd "${NIMDIR}" || exit
+
+      echo "travis_fold:start:csources"
       [ -d csources ] || git clone --depth 1 https://github.com/nim-lang/csources.git
       cd csources || exit
-      echo "[phase 0] Building csources"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         cmd "/C build.bat"
@@ -113,27 +115,45 @@ install:
         sh build.sh
       fi
       cd ..
-      echo "[phase 1] Building koch"
+      echo "travis_fold:end:csources"
+
+      echo "travis_fold:start:build_koch"
       ./bin/nim c koch
-      echo "[phase 2] Building nim"
+      echo "travis_fold:end:build_koch"
+
+      echo "travis_fold:start:koch_boot"
       ./koch boot -d:release
+      echo "travis_fold:end:koch_boot"
+
       export PATH="${NIMDIR}/bin:${PATH}"
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
-        echo "[phase 3] Running tools/winrelease"
+        echo "travis_fold:start:winrelease"
         ./bin/nim c tools/winrelease
         mkdir -p web/upload/download
         cp tools/winrelease.exe .
         ./winrelease
+        echo "travis_fold:end:winrelease"
       else
-        echo "[phase 3] Running koch doc0"
+        echo "travis_fold:start:koch_tools"
+        ./koch tools
+        echo "travis_fold:end:koch_tools"
+
+        echo "travis_fold:start:koch_doc"
         ./koch doc
-        echo "[phase 4] Running koch csource"
+        echo "travis_fold:end:koch_doc"
+
+        echo "travis_fold:start:koch_csource"
         ./koch csource -d:release
-        echo "[phase 5] Running koch xz"
+        echo "travis_fold:end:koch_csource"
+
+        echo "travis_fold:start:koch_xz"
         ./koch xz -d:release
-        echo "[phase 6] Running koch testinstall"
+        echo "travis_fold:end:koch_xz"
+
+        echo "travis_fold:start:koch_testinstall"
         ./koch testinstall
+        echo "travis_fold:start:koch_testinstall"
       fi
       # After building nim, wipe csources to save on cache space.
       rm -rf csources
@@ -149,13 +169,13 @@ install:
     else
       echo "[cache check] No new Nim commit"
     fi
+  - cd "${TRAVIS_BUILD_DIR}"
 
 script:
   - echo "[In script block]"
   - nim --version
 
 before_deploy:
-  - cd "${TRAVIS_BUILD_DIR}"
   - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
@@ -176,7 +196,7 @@ before_deploy:
 
   - git config --local user.name "${GIT_TAG_USER_NAME}"
   - git config --local user.email "${GIT_TAG_USER_EMAIL}"
-  - export TRAVIS_TAG="${NIMBRANCH}-${BUILD_DATE}-${NIMVERSHORT}"
+  - export TRAVIS_TAG="${BUILD_DATE}-${NIMBRANCH}-${NIMVERSHORT}"
   - git tag "${TRAVIS_TAG}" || echo "${TRAVIS_TAG} already exists"
 
   - echo "[phase n-1] The deploy will start now .."
