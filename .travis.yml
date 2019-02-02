@@ -96,7 +96,7 @@ install:
     if [[ ! -f ${NIMEXE} ]]
     then
       export DO_DEPLOY=yes && echo "DO_DEPLOY = ${DO_DEPLOY}"
-      ls -l ${NIMDIR} || ls -l ${TRAVIS_BUILD_DIR}/nim || echo "No nim directory"
+      ls -l ${TRAVIS_BUILD_DIR}/nim || echo "No nim directory"
       rm -rf nim
       mkdir -p nim
       git clone --single-branch --branch "${NIMBRANCH}" --depth=1 "${NIMREPO}" "${NIMDIR}"
