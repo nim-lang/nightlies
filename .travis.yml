@@ -111,6 +111,10 @@ install:
         wget -nv https://nim-lang.org/download/dlls.zip
         7z x -y "dlls.zip" -o"../bin" > nul
         rm -rf dlls.zip
+
+        wget -nv https://nim-lang.org/download/windeps.7z
+        7z x -y "windeps.7z" -o"../bin" > nul
+        rm -rf windeps.7z
       else
         sh build.sh
       fi
