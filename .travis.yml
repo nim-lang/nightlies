@@ -1,5 +1,8 @@
 language: c
 
+services:
+  - docker
+
 env:
   - NIMBRANCH=devel ARCH=64
   - NIMBRANCH=devel ARCH=32
@@ -13,10 +16,6 @@ os:
 
 matrix:
   exclude:
-    - os: linux
-      env: NIMBRANCH=devel ARCH=32
-    - os: linux
-      env: NIMBRANCH=version-0-19 ARCH=32
     - os: osx
       env: NIMBRANCH=devel ARCH=32
     - os: osx
@@ -129,7 +128,21 @@ install:
       ./koch boot -d:release
       echo "travis_fold:end:koch_boot"
 
+      export OLDPATH="${PATH}"
       export PATH="${NIMDIR}/bin:${PATH}"
+      export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
+      if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+      then
+        export ZIPSUFFIX="_x${ARCH}.zip"
+      elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
+      then
+        export ZIPSUFFIX="_x${ARCH}.tar.xz"
+      else
+        export ZIPSUFFIX=".tar.xz"
+      fi
+
+      export ASSETFILE="nim-${DEPLOY_VERSION}-${TRAVIS_OS_NAME}${ZIPSUFFIX}"
+
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]
       then
         echo "travis_fold:start:winrelease"
@@ -147,17 +160,26 @@ install:
         ./koch doc
         echo "travis_fold:end:koch_doc"
 
-        echo "travis_fold:start:koch_csource"
-        ./koch csource -d:release
-        echo "travis_fold:end:koch_csource"
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]]
+        then
+          # Don't use testinstall for Linux
+          echo "travis_fold:start:koch_csource"
+          ./koch csource -d:release
+          echo "travis_fold:end:koch_csource"
 
-        echo "travis_fold:start:koch_xz"
-        ./koch xz -d:release
-        echo "travis_fold:end:koch_xz"
+          echo "travis_fold:start:koch_xz"
+          ./koch xz -d:release
+          echo "travis_fold:end:koch_xz"
 
-        echo "travis_fold:start:koch_testinstall"
-        ./koch testinstall
-        echo "travis_fold:start:koch_testinstall"
+          # Use HBB to build and test generic Linux binaries
+          cp $TRAVIS_BUILD_DIR/hbb.sh build/.
+          docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
+        else
+          # testinstall does csource and xz today
+          echo "travis_fold:start:koch_testinstall"
+          ./koch testinstall
+          echo "travis_fold:start:koch_testinstall"
+        fi
       fi
       # After building nim, wipe csources to save on cache space.
       rm -rf csources
@@ -180,20 +202,13 @@ script:
   - nim --version
 
 before_deploy:
-  - export DEPLOY_VERSION="$(nim --version | head -n 1 | perl -pe 's/.*Version ([0-9.]+).*/\1/')"
-  - |
-    if [[ "$TRAVIS_OS_NAME" == "windows" ]]
-    then
-      export ZIPSUFFIX="_x${ARCH}.zip"
-    else
-      export ZIPSUFFIX=".tar.xz"
-    fi
-
-  - export ASSETFILE="nim-${DEPLOY_VERSION}-${TRAVIS_OS_NAME}${ZIPSUFFIX}"
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]
     then
       cp -f "${NIMDIR}/web/upload/download/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
+    then
+      cp -f "${NIMDIR}/build/$ASSETFILE" "${ASSETFILE}"
     else
       cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
     fi
@@ -212,8 +227,9 @@ deploy:
   name: "${TRAVIS_TAG} nightly build"
   body: >-
     This nightly release was built on ${BUILD_DATE} using https://github.com/nim-lang/Nim/tree/${NIMVER}.
-    The Windows zips contain platform specific binaries whereas the the Linux and OSX archives contain
-    pre-packaged source that can be used to build Nim on Linux, OSX and even Windows.
+    The Windows and Linux archives contain pre-packaged source as well as platform specific binaries
+    whereas the OSX archive contains pre-packaged source only. Any of these archives can be used to
+    build Nim on Windows, Linux and OSX.
 
   skip_cleanup: true
   on:
