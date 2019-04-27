@@ -139,19 +139,19 @@ export PATH="${NIMDIR}/bin:${PATH}"
 if [[ ! -z "${DO_DEPLOY+x}" ]]
 then
   echo "[cache check] New Nim commit found"
+
+  if [[ "$TRAVIS_OS_NAME" == "windows" ]]
+  then
+    cp -f "${NIMDIR}/web/upload/download/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
+  elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
+  then
+    cp -f "${NIMDIR}/build/$ASSETFILE" "${ASSETFILE}"
+  else
+    cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
+  fi
 else
   echo "[cache check] No new Nim commit"
 fi
 cd "${TRAVIS_BUILD_DIR}"
 
 nim --version
-
-if [[ "$TRAVIS_OS_NAME" == "windows" ]]
-then
-  cp -f "${NIMDIR}/web/upload/download/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
-elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
-then
-  cp -f "${NIMDIR}/build/$ASSETFILE" "${ASSETFILE}"
-else
-  cp -f "${NIMDIR}/build/nim-${DEPLOY_VERSION}${ZIPSUFFIX}" "${ASSETFILE}"
-fi
