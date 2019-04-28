@@ -3,23 +3,43 @@ language: c
 services:
   - docker
 
-env:
-  - NIMBRANCH=devel ARCH=64
-  - NIMBRANCH=devel ARCH=32
-  - NIMBRANCH=version-0-19 ARCH=64
-  - NIMBRANCH=version-0-19 ARCH=32
-
-os:
-  - linux
-  - osx
-  - windows
-
 matrix:
-  exclude:
-    - os: osx
-      env: NIMBRANCH=devel ARCH=32
-    - os: osx
-      env: NIMBRANCH=version-0-19 ARCH=32
+  include:
+  - os: linux
+    env: NIMBRANCH=devel ARCH=64
+  - os: linux
+    env: NIMBRANCH=devel ARCH=32
+  - os: osx
+    env: NIMBRANCH=devel ARCH=64
+  - os: windows
+    env: NIMBRANCH=devel ARCH=64
+  - os: windows
+    env: NIMBRANCH=devel ARCH=32
+
+  - os: linux
+    env: NIMBRANCH=devel ARCH=armv6
+  - os: linux
+    env: NIMBRANCH=devel ARCH=armv7
+  - os: linux
+    env: NIMBRANCH=devel ARCH=arm64
+
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=64
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=32
+  - os: osx
+    env: NIMBRANCH=version-0-19 ARCH=64
+  - os: windows
+    env: NIMBRANCH=version-0-19 ARCH=64
+  - os: windows
+    env: NIMBRANCH=version-0-19 ARCH=32
+
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=armv6
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=armv7
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=arm64
 
 branches:
   only:
@@ -36,6 +56,7 @@ addons:
       - libgc-dev
       - libsfml-dev
       - nodejs
+      - binfmt-support
 
 before_cache:
   - |

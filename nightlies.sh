@@ -83,7 +83,12 @@ then
     export ZIPSUFFIX="_x${ARCH}.zip"
   elif [[ "$TRAVIS_OS_NAME" == "linux" ]]
   then
-    export ZIPSUFFIX="_x${ARCH}.tar.xz"
+    if [[ $ARCH == "arm"* ]]
+    then
+      export ZIPSUFFIX="_${ARCH}.tar.xz"
+    else
+      export ZIPSUFFIX="_x${ARCH}.tar.xz"
+    fi
   else
     export ZIPSUFFIX=".tar.xz"
   fi
@@ -118,9 +123,16 @@ then
       ./koch xz -d:release
       echo "travis_fold:end:koch_xz"
 
-      # Use HBB to build and test generic Linux binaries
-      cp $TRAVIS_BUILD_DIR/hbb.sh build/.
-      docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
+      if [[ $ARCH == "arm"* ]]
+      then
+        # Use DockCross to build and test ARM binaries
+        cp $TRAVIS_BUILD_DIR/dx.sh build/.
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io dockcross/linux-$ARCH bash /io/dx.sh
+      else
+        # Use HBB to build and test generic Linux binaries
+        cp $TRAVIS_BUILD_DIR/hbb.sh build/.
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=linux --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
+      fi
     else
       # testinstall does csource and xz today
       echo "travis_fold:start:koch_testinstall"
@@ -136,6 +148,7 @@ fi
 # cached nim build is used.
 cd "${NIMDIR}" && export NIMVERSHORT="$(git log --format=%h -1)"
 export PATH="${NIMDIR}/bin:${PATH}"
+cd "${TRAVIS_BUILD_DIR}"
 if [[ ! -z "${DO_DEPLOY+x}" ]]
 then
   echo "[cache check] New Nim commit found"
@@ -152,6 +165,5 @@ then
 else
   echo "[cache check] No new Nim commit"
 fi
-cd "${TRAVIS_BUILD_DIR}"
 
 nim --version
