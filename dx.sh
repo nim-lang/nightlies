@@ -56,7 +56,7 @@ fi
 ./koch tools -d:release
 
 # Cleanup
-rm -f nim.cfg
+mv nim.cfg ~/.
 mv -f build.sh~ build.sh
 mv -f compiler/nim.cfg~ compiler/nim.cfg
 find -name *.o | xargs rm -f
@@ -73,6 +73,7 @@ xz -9fc $BINFILE > /io/$BINFILE.xz
 
 # Test binaries
 cd nim-$VERSION
+mv ~/nim.cfg .
 ./bin/nim c koch.nim
 ./koch docs
 export NIM_EXE_NOT_IN_PATH=NOT_IN_PATH
