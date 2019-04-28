@@ -127,11 +127,11 @@ then
       then
         # Use DockCross to build and test ARM binaries
         cp $TRAVIS_BUILD_DIR/dx.sh build/.
-        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io dockcross/linux-$ARCH bash /io/dx.sh
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=linux --rm -v `pwd`/build:/io dockcross/linux-$ARCH bash /io/dx.sh
       else
         # Use HBB to build and test generic Linux binaries
         cp $TRAVIS_BUILD_DIR/hbb.sh build/.
-        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=linux --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
       fi
     else
       # testinstall does csource and xz today
