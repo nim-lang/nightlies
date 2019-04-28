@@ -125,6 +125,9 @@ then
 
       if [[ $ARCH == "arm"* ]]
       then
+        # Register binfmt_misc to run arm binaries
+        docker run --rm --privileged multiarch/qemu-user-static:register
+
         # Use DockCross to build and test ARM binaries
         cp $TRAVIS_BUILD_DIR/dx.sh build/.
         docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=linux --rm -v `pwd`/build:/io dockcross/linux-$ARCH bash /io/dx.sh
