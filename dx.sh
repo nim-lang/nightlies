@@ -77,6 +77,6 @@ cd nim-$VERSION
 mv ~/nim.cfg .
 mv ~/compiler.cfg compiler/nim.cfg
 ./bin/nim c koch.nim
-./koch docs
+#./koch docs
 export NIM_EXE_NOT_IN_PATH=NOT_IN_PATH
 ./koch tests --nim:./bin/nim cat megatest
