@@ -108,9 +108,13 @@ then
     ./koch tools
     echo "travis_fold:end:koch_tools"
 
-    echo "travis_fold:start:koch_doc"
-    ./koch doc
-    echo "travis_fold:end:koch_doc"
+    # Skip koch docs for arm builds
+    if [[ $ARCH != "arm"* ]]
+    then
+      echo "travis_fold:start:koch_doc"
+      ./koch doc
+      echo "travis_fold:end:koch_doc"
+    fi
 
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]
     then
