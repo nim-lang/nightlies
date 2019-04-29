@@ -57,6 +57,8 @@ if [[ "$OS" == "android" ]]; then
   mkdir -p /system/bin
   ln -sf /bin/sh /system/bin/sh
   export LDFLAGS="-static /work/glob.o"
+else
+  export LDFLAGS="-static"
 fi
 echo --$COMPILER.options.linker:\"/work/pcre-8.43/.libs/libpcre.a $LDFLAGS\" >> config/nim.cfg
 
@@ -67,6 +69,8 @@ echo --$COMPILER.options.linker:\"/work/pcre-8.43/.libs/libpcre.a $LDFLAGS\" >> 
 cp config/nim.cfg ~/.
 if [[ "$OS" == "android" ]]; then
   sed -i 's/-static/-ldl -pie/' config/nim.cfg
+else
+  sed -i 's/-static/-ldl/' config/nim.cfg
 fi
 
 ./koch tools -d:release
