@@ -7,6 +7,14 @@ echo "Building Nim $VERSION for $ARCH on $OS"
 
 set -e
 
+# Setup PCRE
+wget https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.gz
+tar xvzf pcre-8.43.tar.gz
+cd pcre-8.43
+./configure --host=`$CC -dumpmachine`
+make
+cd ..
+
 # Extract and enter source
 tar -xJf /io/$SRCFILE
 cd nim-$VERSION
@@ -23,10 +31,19 @@ export LD=$CC
 cp config/nim.cfg config/nim.cfg~
 cp -f build.sh build.sh~
 
-echo --gcc.exe:\"$CC\" >> config/nim.cfg
-echo --gcc.linkerexe:\"$CC\" >> config/nim.cfg
-echo --clang.exe:\"$CC\" >> config/nim.cfg
-echo --clang.linkerexe:\"$CC\" >> config/nim.cfg
+if [[ $CC == *"gcc" ]]; then
+  export COMPILER="gcc"
+elif [[ $CC == *"clang" ]]; then
+  export COMPILER="clang"
+else
+  echo "Unknown compiler $CC"
+  exit
+fi
+
+echo -d:usePcreHeader >> config/nim.cfg
+echo --$COMPILER.exe:\"$CC\" >> config/nim.cfg
+echo --$COMPILER.linkerexe:\"$CC\" >> config/nim.cfg
+echo --$COMPILER.options.always:\"-w -I/work/pcre-8.43\" >> config/nim.cfg
 
 if [[ "$OS" == "android" ]]; then
   cd /work
@@ -39,14 +56,15 @@ if [[ "$OS" == "android" ]]; then
   sed -i 's/ -landroid-glob//' build.sh
   mkdir -p /system/bin
   ln -sf /bin/sh /system/bin/sh
-  echo --clang.options.linker:\"-static /work/glob.o\" >> config/nim.cfg
   export LDFLAGS="-static /work/glob.o"
 fi
+echo --$COMPILER.options.linker:\"/work/pcre-8.43/.libs/libpcre.a $LDFLAGS\" >> config/nim.cfg
 
 ./build.sh --cpu $cpu --os $OS
 ./bin/nim c koch
 ./koch boot -d:release
 
+cp config/nim.cfg ~/.
 if [[ "$OS" == "android" ]]; then
   sed -i 's/-static/-ldl -pie/' config/nim.cfg
 fi
@@ -54,7 +72,6 @@ fi
 ./koch tools -d:release
 
 # Cleanup
-mv config/nim.cfg ~/.
 mv -f config/nim.cfg~ config/nim.cfg
 mv -f build.sh~ build.sh
 find -name *.o | xargs rm -f
@@ -73,6 +90,6 @@ xz -9fc $BINFILE > /io/$BINFILE.xz
 cd nim-$VERSION
 mv -f ~/nim.cfg config/.
 ./bin/nim c koch.nim
-#./koch docs
+./koch docs
 export NIM_EXE_NOT_IN_PATH=NOT_IN_PATH
 ./koch tests --nim:./bin/nim cat megatest || echo "Failed megatest"
