@@ -20,13 +20,13 @@ esac
 
 export LD=$CC
 
-echo --gcc.exe:\"$CC\" > nim.cfg
-echo --gcc.linkerexe:\"$CC\" >> nim.cfg
-echo --clang.exe:\"$CC\" >> nim.cfg
-echo --clang.linkerexe:\"$CC\" >> nim.cfg
-
+cp config/nim.cfg config/nim.cfg~
 cp -f build.sh build.sh~
-cp -f compiler/nim.cfg compiler/nim.cfg~
+
+echo --gcc.exe:\"$CC\" >> config/nim.cfg
+echo --gcc.linkerexe:\"$CC\" >> config/nim.cfg
+echo --clang.exe:\"$CC\" >> config/nim.cfg
+echo --clang.linkerexe:\"$CC\" >> config/nim.cfg
 
 if [[ "$OS" == "android" ]]; then
   cd /work
@@ -39,27 +39,24 @@ if [[ "$OS" == "android" ]]; then
   sed -i 's/ -landroid-glob//' build.sh
   mkdir -p /system/bin
   ln -sf /bin/sh /system/bin/sh
-  echo --clang.options.linker:\"-static /work/glob.o\" >> nim.cfg
+  echo --clang.options.linker:\"-static /work/glob.o\" >> config/nim.cfg
   export LDFLAGS="-static /work/glob.o"
 fi
-
-cat nim.cfg >> compiler/nim.cfg
 
 ./build.sh --cpu $cpu --os $OS
 ./bin/nim c koch
 ./koch boot -d:release
 
 if [[ "$OS" == "android" ]]; then
-  sed -i 's/-static/-ldl -pie/' nim.cfg
+  sed -i 's/-static/-ldl -pie/' config/nim.cfg
 fi
 
 ./koch tools -d:release
 
 # Cleanup
-mv nim.cfg ~/.
-mv compiler/nim.cfg ~/compiler.cfg
+mv config/nim.cfg ~/.
+mv -f config/nim.cfg~ config/nim.cfg
 mv -f build.sh~ build.sh
-mv -f compiler/nim.cfg~ compiler/nim.cfg
 find -name *.o | xargs rm -f
 find -name nimcache | xargs rm -rf
 rm -f compiler/nim0
@@ -74,9 +71,8 @@ xz -9fc $BINFILE > /io/$BINFILE.xz
 
 # Test binaries
 cd nim-$VERSION
-mv ~/nim.cfg .
-mv ~/compiler.cfg compiler/nim.cfg
+mv -f ~/nim.cfg config/.
 ./bin/nim c koch.nim
 #./koch docs
 export NIM_EXE_NOT_IN_PATH=NOT_IN_PATH
-./koch tests --nim:./bin/nim cat megatest
+./koch tests --nim:./bin/nim cat megatest || echo "Failed megatest"
