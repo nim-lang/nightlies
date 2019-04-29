@@ -94,6 +94,6 @@ xz -9fc $BINFILE > /io/$BINFILE.xz
 cd nim-$VERSION
 mv -f ~/nim.cfg config/.
 ./bin/nim c koch.nim
-./koch docs
+#./koch docs
 export NIM_EXE_NOT_IN_PATH=NOT_IN_PATH
 ./koch tests --nim:./bin/nim cat megatest || echo "Failed megatest"
