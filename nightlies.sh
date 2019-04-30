@@ -34,11 +34,11 @@ export NIMVER="$(git ls-remote ${NIMREPO} ${NIMBRANCH} | cut -f 1)"
 export NIMDIR="${TRAVIS_BUILD_DIR}/nim/${NIMVER}"
 echo "NIMDIR = ${NIMDIR}"
 
-if [[ -z "${OS+x}" ]]
+if [[ -z "${OSVAR+x}" ]]
 then
-  export OS="${TRAVIS_OS_NAME}"
+  export OSVAR="${TRAVIS_OS_NAME}"
 fi
-echo "OS = ${OS}"
+echo "OS = ${OSVAR}"
 
 # Path to nim binary
 if [[ "$TRAVIS_OS_NAME" == "windows" ]]
@@ -99,7 +99,7 @@ then
     export ZIPSUFFIX=".tar.xz"
   fi
 
-  export ASSETFILE="nim-${DEPLOY_VERSION}-${OS}${ZIPSUFFIX}"
+  export ASSETFILE="nim-${DEPLOY_VERSION}-${OSVAR}${ZIPSUFFIX}"
 
   if [[ "$TRAVIS_OS_NAME" == "windows" ]]
   then
@@ -140,7 +140,7 @@ then
 
         # Use DockCross to build and test ARM binaries
         cp $TRAVIS_BUILD_DIR/dx.sh build/.
-        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=$OS --rm -v `pwd`/build:/io dockcross/$OS-$ARCH bash /io/dx.sh
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH -e OS=$OSVAR --rm -v `pwd`/build:/io dockcross/$OSVAR-$ARCH bash /io/dx.sh
       else
         # Use HBB to build and test generic Linux binaries
         cp $TRAVIS_BUILD_DIR/hbb.sh build/.
