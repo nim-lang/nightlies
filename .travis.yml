@@ -25,7 +25,7 @@ matrix:
   - os: linux
     env: NIMBRANCH=devel ARCH=arm64
   - os: linux
-    env: NIMBRANCH=devel ARCH=arm64 OS=android
+    env: NIMBRANCH=devel ARCH=arm64 OSVAR=android
 
   - os: linux
     env: NIMBRANCH=version-0-19 ARCH=64
@@ -45,7 +45,7 @@ matrix:
   - os: linux
     env: NIMBRANCH=version-0-19 ARCH=arm64
   - os: linux
-    env: NIMBRANCH=version-0-19 ARCH=arm64 OS=android
+    env: NIMBRANCH=version-0-19 ARCH=arm64 OSVAR=android
 
 branches:
   only:
