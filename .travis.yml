@@ -21,6 +21,8 @@ matrix:
   - os: linux
     env: NIMBRANCH=devel ARCH=armv6
   - os: linux
+    env: NIMBRANCH=devel ARCH=armv7a
+  - os: linux
     env: NIMBRANCH=devel ARCH=armv7
   - os: linux
     env: NIMBRANCH=devel ARCH=arm64
@@ -40,6 +42,8 @@ matrix:
 
   - os: linux
     env: NIMBRANCH=version-0-19 ARCH=armv6
+  - os: linux
+    env: NIMBRANCH=version-0-19 ARCH=armv7a
   - os: linux
     env: NIMBRANCH=version-0-19 ARCH=armv7
   - os: linux
