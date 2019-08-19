@@ -66,6 +66,7 @@ then
     cmd "/C build.bat"
     wget -nv https://nim-lang.org/download/windeps.zip
     7z x -y "windeps.zip" -o"../bin" > nul
+    export PATH="$(realpath ../bin):${PATH}"
     rm -rf windeps.zip
   else
     sh build.sh
