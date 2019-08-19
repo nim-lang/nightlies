@@ -67,6 +67,7 @@ then
     wget -nv https://nim-lang.org/download/windeps.zip
     7z x -y "windeps.zip" -o"../bin" > nul
     rm -rf windeps.zip
+	  export PATH="../bin:${PATH}"
   else
     sh build.sh
   fi
