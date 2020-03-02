@@ -5,7 +5,7 @@ language: c
 services:
   - docker
 
-jobs:
+matrix:
   include:
   - os: linux
     env: NIMBRANCH=devel ARCH=64
@@ -92,16 +92,16 @@ before_deploy:
 
 deploy:
   provider: releases
-  token: "${GITHUB_OAUTH_TOKEN}"
+  api_key: "${GITHUB_OAUTH_TOKEN}"
   file: "${ASSETFILE}"
   name: "${TRAVIS_TAG} nightly build"
-  release_notes: >-
+  body: >-
     This nightly release was built on ${BUILD_DATE} using https://github.com/nim-lang/Nim/tree/${NIMVER}.
     The Windows and Linux archives contain pre-packaged source as well as platform specific binaries
     whereas the OSX archive contains pre-packaged source only. Any of these archives can be used to
     build Nim on Windows, Linux and OSX.
 
-  cleanup: false
+  skip_cleanup: true
   on:
     condition: "! -z ${DO_DEPLOY+x}"
     tags: false
