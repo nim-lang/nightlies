@@ -8,26 +8,26 @@ services:
 matrix:
   include:
   - os: linux
-    env: NIMBRANCH=devel ARCH=64
+    env: NIMBRANCH=version-1-2 ARCH=64
   - os: linux
-    env: NIMBRANCH=devel ARCH=32
+    env: NIMBRANCH=version-1-2 ARCH=32
   - os: osx
-    env: NIMBRANCH=devel ARCH=64
+    env: NIMBRANCH=version-1-2 ARCH=64
   - os: windows
-    env: NIMBRANCH=devel ARCH=64
+    env: NIMBRANCH=version-1-2 ARCH=64
   - os: windows
-    env: NIMBRANCH=devel ARCH=32
+    env: NIMBRANCH=version-1-2 ARCH=32
 
   - os: linux
-    env: NIMBRANCH=devel ARCH=armv6
+    env: NIMBRANCH=version-1-2 ARCH=armv6
   - os: linux
-    env: NIMBRANCH=devel ARCH=armv7a
+    env: NIMBRANCH=version-1-2 ARCH=armv7a
   - os: linux
-    env: NIMBRANCH=devel ARCH=armv7
+    env: NIMBRANCH=version-1-2 ARCH=armv7
   - os: linux
-    env: NIMBRANCH=devel ARCH=arm64
+    env: NIMBRANCH=version-1-2 ARCH=arm64
   - os: linux
-    env: NIMBRANCH=devel ARCH=arm64 OSVAR=android
+    env: NIMBRANCH=version-1-2 ARCH=arm64 OSVAR=android
 
   - os: linux
     env: NIMBRANCH=version-1-0 ARCH=64
@@ -50,6 +50,29 @@ matrix:
     env: NIMBRANCH=version-1-0 ARCH=arm64
   - os: linux
     env: NIMBRANCH=version-1-0 ARCH=arm64 OSVAR=android
+
+  - os: linux
+    env: NIMBRANCH=devel ARCH=64
+  - os: linux
+    env: NIMBRANCH=devel ARCH=32
+  - os: osx
+    env: NIMBRANCH=devel ARCH=64
+  - os: windows
+    env: NIMBRANCH=devel ARCH=64
+  - os: windows
+    env: NIMBRANCH=devel ARCH=32
+
+  - os: linux
+    env: NIMBRANCH=devel ARCH=armv6
+  - os: linux
+    env: NIMBRANCH=devel ARCH=armv7a
+  - os: linux
+    env: NIMBRANCH=devel ARCH=armv7
+  - os: linux
+    env: NIMBRANCH=devel ARCH=arm64
+  - os: linux
+    env: NIMBRANCH=devel ARCH=arm64 OSVAR=android
+
 
 branches:
   only:
