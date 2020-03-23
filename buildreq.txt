@@ -1,0 +1,3 @@
+SQLite-v3.31.1+0
+OpenSSL-v1.1.1+2
+PCRE-v8.42.0+2
