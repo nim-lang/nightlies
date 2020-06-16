@@ -145,7 +145,7 @@ then
       else
         # Use HBB to build and test generic Linux binaries
         cp $TRAVIS_BUILD_DIR/hbb.sh build/.
-        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:latest bash /io/hbb.sh
+        docker run -t -i -e VERSION=$DEPLOY_VERSION -e ARCH=$ARCH --rm -v `pwd`/build:/io phusion/holy-build-box-$ARCH:2.0.1 bash /io/hbb.sh
       fi
     else
       # testinstall does csource and xz today
