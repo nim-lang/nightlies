@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: nim/output/nim-*.tar.xz
-          key: 'source-r1-${{ matrix.setting.commit }}'
+          key: 'source-r2-${{ matrix.setting.commit }}'
 
       - name: Get latest csources version
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -215,6 +215,7 @@ jobs:
         run: |
           cd nim
           ./koch nimble
+          ./koch fusion
 
       - name: Build source archive
         if: steps.nim-cache.outputs.cache-hit != 'true'
