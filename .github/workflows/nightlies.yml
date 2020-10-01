@@ -215,7 +215,10 @@ jobs:
         run: |
           cd nim
           ./koch nimble
-          ./koch fusion
+          # This conditional can be removed once we drop nim < 1.4
+          if ! ./koch --help |& grep fusion >/dev/null; then
+            ./koch fusion
+          fi
 
       - name: Build source archive
         if: steps.nim-cache.outputs.cache-hit != 'true'
