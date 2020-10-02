@@ -216,7 +216,7 @@ jobs:
           cd nim
           ./koch nimble
           # This conditional can be removed once we drop nim < 1.4
-          if ! ./koch --help |& grep fusion >/dev/null; then
+          if ./koch --help |& grep fusion >/dev/null; then
             ./koch fusion
           fi
 
