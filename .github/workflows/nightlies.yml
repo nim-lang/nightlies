@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: nim/output/nim-*.tar.xz
-          key: 'source-${{ matrix.setting.commit }}'
+          key: 'source-r2-${{ matrix.setting.commit }}'
 
       - name: Get latest csources version
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -208,6 +208,17 @@ jobs:
         run: |
           cd nim
           ./koch csources -d:danger '-d:gitHash:${{ matrix.setting.commit }}'
+
+      - name: Bundle external sources
+        if: steps.nim-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          cd nim
+          ./koch nimble
+          # This conditional can be removed once we drop nim < 1.4
+          if ./koch --help |& grep fusion >/dev/null; then
+            ./koch fusion
+          fi
 
       - name: Build source archive
         if: steps.nim-cache.outputs.cache-hit != 'true'
