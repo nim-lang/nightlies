@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: nim/output/nim-*.tar.xz
-          key: 'source-r2-${{ matrix.setting.commit }}'
+          key: 'source-r3-${{ matrix.setting.commit }}'
 
       - name: Get latest csources version
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -214,10 +214,20 @@ jobs:
         shell: bash
         run: |
           cd nim
-          ./koch nimble
-          # This conditional can be removed once we drop nim < 1.4
-          if ./koch --help |& grep fusion >/dev/null; then
-            ./koch fusion
+
+          version=$(nim secret --hints:off <<< 'echo NimVersion; quit 0')
+          major=${version%%.*}
+          minor=${version#*.}
+          minor=${minor%.*}
+          patch=${version##*.}
+
+          # Only Nim >= 1.2.7 supports bundled external deps.
+          if [[ $major -le 1 && $minor -le 2 && $patch -le 7 ]]; then
+            ./koch nimble
+            # Only Nim >= 1.4.0 bundles fusion.
+            if [[ $major -ge 1 && $major -ge 4 ]]; then
+              ./koch fusion
+            fi
           fi
 
       - name: Build source archive
