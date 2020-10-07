@@ -89,30 +89,51 @@ nativepath() {
   esac
 }
 
-## pushenv (<variable name> [<value>])..
+## pushenv [-n] (<variable name> [<value>])..
 ##
 ## Push the specified environment variable to be used with the next step in a
 ## job pipeline.
+##
+## If -n is passed, the value will be left as-is and won't be quoted.
 pushenv() {
   if [[ $# -eq 0 ]]; then
     error "a variable name must be passed"
     return 1
   fi
 
+  local quote=true
+  OPTIND=1
+  while getopts 'n' curopt; do
+    case "$curopt" in
+      'n')
+        quote=false
+        ;;
+      *)
+        return 1
+        ;;
+    esac
+  done
+
+  shift $((OPTIND - 1))
+
   local printNotice=true
+  local envfile=$PWD/environment
+  local formatStr='export %s=%s\n'
+  if $quote; then
+    formatStr='export %s=%q\n'
+  fi
   while [[ $# -gt 0 ]]; do
     local name=$1
     local value=$2
-    local envfile=$PWD/environment
 
     if [[ $value == *$'\n'* ]]; then
       error "variable value must not contain newline"
       return 1
     fi
-    if is-var GITHUB_ACTIONS; then
-      envfile=$GITHUB_ENV
-    fi
-    if ! echo "export $name=${value@Q}" >> "$envfile"; then
+
+    # The format string changes depending on the options passed.
+    # shellcheck disable=SC2059
+    if ! printf "$formatStr" "$name" "$value" >> "$envfile"; then
       echo "Could not write environmental settings to $envfile"
       return 1
     fi
@@ -143,8 +164,8 @@ pushpath() {
     fi
     local path
     path=$(realpath "$1")
-    if [[ $1 == *$'\n'* ]]; then
-      error "variable value must not contain newline"
+    if [[ $1 == *$'\n'* || $1 == *':'* ]]; then
+      error "path must not contain newline or ':' (colon)"
       return 1
     fi
     snippet=true
@@ -154,8 +175,9 @@ pushpath() {
   done
 
   if $snippet; then
-    echo "Environmental settings are appended to $PWD/environment"
-    (IFS=': '; echo "export PATH=${_pushpath_path[*]@Q}\"\${PATH:+:\$PATH}\"") >> environment
+    # This is intentional, we want the PATH to be expanded at source time.
+    # shellcheck disable=SC2016
+    pushenv -n PATH "$(IFS=': '; printf '%q${PATH:+:$PATH}' "${_pushpath_path[*]}")"
   fi
 }
 
