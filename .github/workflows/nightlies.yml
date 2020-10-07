@@ -181,7 +181,7 @@ jobs:
 
       - name: Setup environment
         shell: bash
-        run: echo '::add-path::${{ github.workspace }}/nim/bin'
+        run: echo '${{ github.workspace }}/nim/bin' >> "$GITHUB_PATH"
 
       - name: Build 1-stage csources compiler
         if: steps.nim-cache.outputs.cache-hit != 'true'

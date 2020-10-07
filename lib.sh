@@ -103,19 +103,22 @@ pushenv() {
   while [[ $# -gt 0 ]]; do
     local name=$1
     local value=$2
+    local envfile=$PWD/environment
 
     if [[ $value == *$'\n'* ]]; then
       error "variable value must not contain newline"
       return 1
     fi
     if is-var GITHUB_ACTIONS; then
-      echo "::set-env name=$name::$value"
-    else
-      if $printNotice; then
-        echo "Environmental settings are appended to $PWD/environment"
-        printNotice=false
-      fi
-      echo "export $name=${value@Q}" >> environment
+      envfile=$GITHUB_ENV
+    fi
+    if ! echo "export $name=${value@Q}" >> "$envfile"; then
+      echo "Could not write environmental settings to $envfile"
+      return 1
+    fi
+    if $printNotice; then
+      echo "Environmental settings are appended to $envfile"
+      printNotice=false
     fi
 
     shift 2 || shift $#
