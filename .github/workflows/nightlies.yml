@@ -444,7 +444,8 @@ jobs:
           tag='latest-${{ matrix.setting.branch }}'
           aliasFor='${{ matrix.setting.release }}'
           echo "Deleting release $tag"
-          hub -C nightlies release delete $tag || :
+          hub -C nightlies release delete "$tag" || :
+          git -C nightlies push --delete origin "$tag" || :
 
           echo "Create $tag as draft"
           cat << EOF | hub -C nightlies release create -d -F - "$tag" >/dev/null
