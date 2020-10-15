@@ -430,6 +430,12 @@ jobs:
         with:
           path: nightlies
 
+      - name: Download generated source package
+        uses: actions/download-artifact@v2
+        with:
+          name: 'nim-${{ matrix.setting.commit }}'
+          path: source
+
       - name: Download built binaries from artifacts
         uses: actions/download-artifact@v2
         with:
@@ -457,6 +463,10 @@ jobs:
           Each \`latest-\` alias is guaranteed to contain binaries for all \
           supported architectures.
           EOF
+
+          source=(source/*)
+          echo "Uploading ${source[0]}"
+          hub -C nightlies release edit -m '' -a "${source[0]}" "$tag"
 
           for artifact in binaries/*; do
             echo "Uploading $artifact"
