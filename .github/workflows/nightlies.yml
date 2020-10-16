@@ -46,8 +46,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: settings
-          key: build-settings-${{ hashFiles('versions.json') }}
-          restore-keys: build-settings-
+          key: build-settings-r1-${{ hashFiles('versions.json') }}
+          restore-keys: build-settings-r1
 
       - name: Generate build settings
         id: settings
