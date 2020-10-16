@@ -84,13 +84,11 @@ if [[ ! -d $output ]]; then
       esac
       curl -L "https://nim-lang.org/download/mingw$arch-6.3.0.7z" -o "mingw$arch.7z"
       curl -L "https://nim-lang.org/download/windeps.zip" -o "windeps.zip"
-      curl -L "https://nim-lang.org/download/dlls.zip" -o "dlls.zip"
 
       7z x "mingw$arch.7z"
       7z x -owindeps windeps.zip
-      7z x -odlls dlls.zip
 
-      rm -f "mingw$arch.7z" windeps.zip dlls.zip
+      rm -f "mingw$arch.7z" windeps.zip
       ;;
     linux)
       # NOTE: This key is expired and it appears from the authors page that this
@@ -124,7 +122,7 @@ libs=()
 ldflags=()
 case "$(os)" in
   windows)
-    pushpath mingw*/bin windeps dlls
+    pushpath mingw*/bin windeps
     ;;
   linux | darwin)
     if [[ $(os) == linux ]]; then

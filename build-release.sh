@@ -165,7 +165,7 @@ case "$os" in
       mkdir -p web/upload/download
 
       # Package DLLs
-      cp -t bin "$deps/dlls/"*.dll
+      cp -t bin "$deps/windeps/"*
 
       nim c --outdir:. tools/winrelease
       ./winrelease
