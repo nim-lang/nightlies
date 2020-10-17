@@ -6,12 +6,6 @@
 #
 # This script is licensed under the MIT license.
 
-# shellcheck disable=SC2034
-_rev=1 # Bump this variable to force rebuild.
-       # This variable does not change the script behavior in anyway, but
-       # will trigger a cache mismatch for CI services configured to hash
-       # the script as part of the cache key.
-
 usage() {
   cat << EOF
 Usage: $0 [-o folder] [-v version] <source>
@@ -21,6 +15,7 @@ assumed to be created from a standard Nim source archive.
 Options:
     -o folder   Where to output the resulting artifacts. Defaults to $PWD/output.
     -d folder   Where dependencies are downloaded into. Defaults to $PWD/external.
+    -r revision Add "-revision" to the binary archive name.
     -h          This help message.
 
 Environment Variables:
@@ -40,13 +35,17 @@ source "$basedir/lib.sh"
 output=$PWD/output
 outrel=$PWD
 deps=$PWD/external
-while getopts "o:v:d:h" curopt; do
+revision=
+while getopts "o:d:r:h" curopt; do
   case "$curopt" in
     'o')
       output=$(realpath "$OPTARG")
       ;;
     'd')
       deps=$(realpath "$OPTARG")
+      ;;
+    'r')
+      revision=$OPTARG
       ;;
     'h')
       usage
@@ -170,8 +169,8 @@ case "$os" in
       nim c --outdir:. tools/winrelease
       ./winrelease
 
-      artifact=$output/nim-${version}$suffix.zip
-      cp "web/upload/download/nim-${version}$cpusuffix.zip" "$artifact"
+      artifact=$output/nim-$version${revision:+-$revision}$suffix.zip
+      cp "web/upload/download/nim-$version$cpusuffix.zip" "$artifact"
 
       echo "Generated release artifact at $artifact"
       echo "$artifact" > "$output/nim.txt"
@@ -231,7 +230,7 @@ case "$os" in
         ln -sf "$srcDir" "nim-$version"
       fi
 
-      artifact=$output/nim-$version$suffix.tar
+      artifact=$output/nim-$version${revision:+-$revision}$suffix.tar
       tar chf "$artifact" "nim-$version"
       xz -9e "$artifact"
       artifact=$artifact.xz

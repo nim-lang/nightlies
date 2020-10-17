@@ -17,6 +17,12 @@ jobs:
     outputs:
       settings: ${{ steps.settings.outputs.settings }}
       deploy: ${{ steps.settings.outputs.deploy }}
+
+    env:
+      # Bump this value when a rebuild of nightlies (of the
+      # same compiler commits) has to be done.
+      nightlies_revision: 1
+
     steps:
       - name: Checkout nightlies
         uses: actions/checkout@v2
@@ -46,8 +52,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: settings
-          key: build-settings-r2-${{ hashFiles('versions.json') }}
-          restore-keys: build-settings-r2-
+          key: build-settings-${{ hashFiles('versions.json') }}-${{ env.nightlies_revision }}
+          restore-keys: build-settings-
 
       - name: Generate build settings
         id: settings
@@ -90,10 +96,14 @@ jobs:
           for branch in "${!refs[@]}"; do
             savedCommit=
             commit=${refs[$branch]}
+            buildRevision=1
             if [[ -e "settings/$branch.json" ]]; then
-              savedCommit=$(jq -r '.commit' "settings/$branch.json")
+              savedSettings=$(< "settings/$branch.json")
+              savedCommit=$(jq -r '.commit' <<< "$savedSettings")
+              savedNightliesRev=$(jq '.nightlies_revision // 0' <<< "$savedSettings")
+              buildRevision=$(($(jq '.build_revision // 0' <<< "$savedSettings") + 1))
             fi
-            if [[ $savedCommit != "$commit" ]]; then
+            if [[ $savedCommit != "$commit" || $savedNightliesRev -ne $nightlies_revision ]]; then
               echo "::group::Generating build settings for branch $branch"
               {
                 {
@@ -105,9 +115,11 @@ jobs:
                   done
                 } | jq -s '{ environment: (reduce .[] as $item (null; . + $item)) }'
 
-                tag=$(date -u --date="@${environment[SOURCE_CODE_EPOCH]}" +%F)-$branch-$commit
+                tag=$(date -u --date="@${environment[SOURCE_CODE_EPOCH]}" +%F)-$branch-$commit-$buildRevision
 
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
+                jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
+                jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
@@ -141,7 +153,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: nim/output/nim-*.tar.xz
-          key: 'source-r6-${{ matrix.setting.commit }}'
+          key: 'source-${{ matrix.setting.commit }}-${{ matrix.setting.build_revision }}'
 
       - name: Get latest csources version
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -238,7 +250,10 @@ jobs:
           ./koch xz
 
           mkdir -p output
-          cp build/nim-*.tar.xz output
+          source=$(basename build/nim-*.tar.xz)
+          version=${source%.tar.xz}
+          version=${version#nim-}
+          cp build/$source output/nim-$version-${{ matrix.setting.build_revision }}.tar.xz
 
       - name: Publish release
         if: needs.setup.outputs.deploy == 'true'
@@ -247,8 +262,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if ! hub -C nightlies release show '${{ matrix.setting.release }}' >/dev/null 2>&1; then
-            cat << EOF | hub -C nightlies release create -a nim/output/nim-*.tar.xz -F - '${{ matrix.setting.release }}' >/dev/null
-          Nightly build on $(date -u --date="@$SOURCE_CODE_EPOCH" "+%F") for branch ${{ matrix.setting.branch }}
+            cat << EOF | hub -C nightlies release create -a nim/output/* -F - '${{ matrix.setting.release }}' >/dev/null
+          Nightly build on $(date -u --date="@$SOURCE_CODE_EPOCH" "+%F") for branch ${{ matrix.setting.branch }} (revision ${{ matrix.setting.build_revision }})
 
           Commit: https://github.com/nim-lang/Nim/commit/${{ matrix.setting.commit }}
 
@@ -312,7 +327,7 @@ jobs:
         with:
           path: output
           key: >
-            output-${{ hashFiles('nightlies/lib.sh') }}-${{ hashFiles('nightlies/build-release.sh') }}-${{ matrix.target.triple }}-${{ matrix.setting.commit }}
+            output-${{ hashFiles('nightlies/lib.sh') }}-${{ hashFiles('nightlies/build-release.sh') }}-${{ matrix.target.triple }}-${{ matrix.setting.commit }}-${{ matrix.setting.build_revision }}
 
       - name: Cache dependencies
         if: steps.built.outputs.cache-hit != 'true'
@@ -320,7 +335,7 @@ jobs:
         with:
           path: external
           key: >
-            deps-${{ hashFiles('nightlies/lib.sh') }}-${{ hashFiles('nightlies/deps.sh') }}-${{ hashFiles('nightlies/buildreq.txt') }}-${{ runner.os }}-${{ matrix.target.triple }}
+            deps-${{ hashFiles('nightlies/lib.sh') }}-${{ hashFiles('nightlies/deps.sh') }}-${{ hashFiles('nightlies/buildreq.txt') }}-${{ runner.os }}-${{ matrix.target.triple }}-${{ matrix.setting.build_revision }}
 
       - name: Install dependencies
         if: steps.built.outputs.cache-hit != 'true'
@@ -342,8 +357,8 @@ jobs:
         shell: bash
         run: |
           source=( source/nim-*.tar.xz )
-          version="${source[0]##*nim-}"
-          version="${version%.tar.xz}"
+          version=${source[0]##*nim-}
+          version=${version%%-*.tar.xz}
           case '${{ runner.os }}' in
             'Windows')
               7z x -so "${source[0]}" | 7z x -si -ttar -aoa
@@ -365,7 +380,7 @@ jobs:
         if: steps.built.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          nightlies/build-release.sh 'nim-${{ steps.source.outputs.version }}'
+          nightlies/build-release.sh -r '${{ matrix.setting.build_revision }}' 'nim-${{ steps.source.outputs.version }}'
 
       - name: Prepare binaries for uploads
         id: release
