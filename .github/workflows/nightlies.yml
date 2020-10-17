@@ -222,7 +222,7 @@ jobs:
           patch=${version##*.}
 
           # Only Nim >= 1.2.7 supports bundled external deps.
-          if [[ $major -le 1 && $minor -le 2 && $patch -le 7 ]]; then
+          if [[ $major -ge 1 && $minor -ge 2 && $patch -ge 7 ]]; then
             ./koch nimble
             # Only Nim >= 1.4.0 bundles fusion.
             if [[ $major -ge 1 && $major -ge 4 ]]; then
