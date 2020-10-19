@@ -21,7 +21,7 @@ jobs:
     env:
       # Bump this value when a rebuild of nightlies (of the
       # same compiler commits) has to be done.
-      nightlies_revision: 1
+      nightlies_revision: 2
 
     steps:
       - name: Checkout nightlies
@@ -96,12 +96,12 @@ jobs:
           for branch in "${!refs[@]}"; do
             savedCommit=
             commit=${refs[$branch]}
-            buildRevision=1
+            buildRevision=0
             if [[ -e "settings/$branch.json" ]]; then
               savedSettings=$(< "settings/$branch.json")
               savedCommit=$(jq -r '.commit' <<< "$savedSettings")
               savedNightliesRev=$(jq '.nightlies_revision // 0' <<< "$savedSettings")
-              buildRevision=$(($(jq '.build_revision // 0' <<< "$savedSettings") + 1))
+              buildRevision=$(($(jq '.build_revision // -1' <<< "$savedSettings") + 1))
             fi
             if [[ $savedCommit != "$commit" || $savedNightliesRev -ne $nightlies_revision ]]; then
               echo "::group::Generating build settings for branch $branch"
@@ -115,7 +115,11 @@ jobs:
                   done
                 } | jq -s '{ environment: (reduce .[] as $item (null; . + $item)) }'
 
-                tag=$(date -u --date="@${environment[SOURCE_CODE_EPOCH]}" +%F)-$branch-$commit-$buildRevision
+                tag=$(date -u --date="@${environment[SOURCE_CODE_EPOCH]}" +%F)-$branch-$commit
+                # Don't add revision to tags for now.
+                # if [[ $buildRevision -gt 0 ]]; then
+                #   tag=$tag-$buildRevision
+                # fi
 
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
@@ -253,7 +257,7 @@ jobs:
           source=$(basename build/nim-*.tar.xz)
           version=${source%.tar.xz}
           version=${version#nim-}
-          cp build/$source output/nim-$version-${{ matrix.setting.build_revision }}.tar.xz
+          cp build/$source output/nim-$version.tar.xz
 
       - name: Publish release
         if: needs.setup.outputs.deploy == 'true'
@@ -263,7 +267,7 @@ jobs:
         run: |
           if ! hub -C nightlies release show '${{ matrix.setting.release }}' >/dev/null 2>&1; then
             cat << EOF | hub -C nightlies release create -a nim/output/* -F - '${{ matrix.setting.release }}' >/dev/null
-          Nightly build on $(date -u --date="@$SOURCE_CODE_EPOCH" "+%F") for branch ${{ matrix.setting.branch }} (revision ${{ matrix.setting.build_revision }})
+          Nightly build on $(date -u --date="@$SOURCE_CODE_EPOCH" "+%F") for branch ${{ matrix.setting.branch }}
 
           Commit: https://github.com/nim-lang/Nim/commit/${{ matrix.setting.commit }}
 
@@ -358,7 +362,7 @@ jobs:
         run: |
           source=( source/nim-*.tar.xz )
           version=${source[0]##*nim-}
-          version=${version%%-*.tar.xz}
+          version=${version%%.tar.xz}
           case '${{ runner.os }}' in
             'Windows')
               7z x -so "${source[0]}" | 7z x -si -ttar -aoa
@@ -380,7 +384,7 @@ jobs:
         if: steps.built.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          nightlies/build-release.sh -r '${{ matrix.setting.build_revision }}' 'nim-${{ steps.source.outputs.version }}'
+          nightlies/build-release.sh 'nim-${{ steps.source.outputs.version }}'
 
       - name: Prepare binaries for uploads
         id: release
@@ -471,7 +475,7 @@ jobs:
 
           for artifact in binaries/*; do
             # Trim version from artifact name
-            shortName=${artifact#*nim-*-*-}
+            shortName=${artifact#*nim-*-}
             mv -v "$artifact" "binaries/$shortName"
             echo "Uploading $artifact as $shortName"
             hub -C nightlies release edit -m '' -a "binaries/$shortName" "$tag"
