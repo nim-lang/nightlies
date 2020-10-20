@@ -95,13 +95,18 @@ jobs:
 
           for branch in "${!refs[@]}"; do
             savedCommit=
+            savedNightliesRev=
+            savedBuildRevision=
             commit=${refs[$branch]}
             buildRevision=0
             if [[ -e "settings/$branch.json" ]]; then
               savedSettings=$(< "settings/$branch.json")
               savedCommit=$(jq -r '.commit' <<< "$savedSettings")
               savedNightliesRev=$(jq '.nightlies_revision // 0' <<< "$savedSettings")
-              buildRevision=$(($(jq '.build_revision // -1' <<< "$savedSettings") + 1))
+              savedBuildRevision=$(jq '.build_revision // -1' <<< "$savedSettings")
+              if [[ $savedNightliesRev -ne $nightlies_revision ]]; then
+                buildRevision=$(($savedBuildRevision + 1))
+              fi
             fi
             if [[ $savedCommit != "$commit" || $savedNightliesRev -ne $nightlies_revision ]]; then
               echo "::group::Generating build settings for branch $branch"
