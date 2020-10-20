@@ -242,13 +242,10 @@ jobs:
           minor=${minor%.*}
           patch=${version##*.}
 
-          # Only Nim >= 1.2.7 supports bundled external deps.
-          if [[ $major -ge 1 && ( $minor -gt 2 || $minor -eq 2 && $patch -ge 7 ) ]]; then
-            ./koch nimble
-            # Only Nim >= 1.4.0 bundles fusion.
-            if [[ $major -ge 1 && $minor -ge 4 ]]; then
-              ./koch fusion
-            fi
+          ./koch nimble
+          # Only Nim >= 1.4.0 bundles fusion.
+          if [[ $major -ge 1 && $minor -ge 4 ]]; then
+            ./koch fusion
           fi
 
       - name: Build source archive
