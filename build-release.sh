@@ -131,7 +131,7 @@ time {
 versionRegex='^Nim Compiler Version ([0-9]+\.[0-9]+\.[0-9]+) \[([a-zA-Z0-9]+): [a-zA-Z0-9]+\]'
 if [[ $(nim --version 2>&1) =~ $versionRegex ]]; then
   version=${BASH_REMATCH[1]}
-  os=${BASH_REMATCH[2],,}
+  os=$(tolowercase "${BASH_REMATCH[2]}")
 fi
 
 # Fail if the variables are not declared (ie. nim couldn't run)

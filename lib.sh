@@ -198,3 +198,12 @@ endfold() {
     echo "::endgroup::"
   fi
 }
+
+## tolowercase <string>
+##
+## Convert string to lower case because CI bash
+## might not support the built-in case changing
+## parameter expansion
+tolowercase() {
+  echo "$(tr [A-Z] [a-z] <<< "${1?}")"
+}
