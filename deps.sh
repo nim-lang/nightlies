@@ -9,7 +9,7 @@
 # NOTE: Editing this script will cause dependencies to be redownloaded
 
 # shellcheck disable=SC2034
-_rev=1 # Bump this variable if dependencies should be redownloaded.
+_rev=2 # Bump this variable if dependencies should be redownloaded.
        # This variable does not change the script behavior in anyway, but
        # will trigger a cache mismatch for CI services configured to hash
        # the script as part of the cache key.
