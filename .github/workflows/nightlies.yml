@@ -350,6 +350,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: nightlies/deps.sh -t '${{ matrix.target.triple }}'
 
+      - name: debug: list deps
+        shell: bash
+        run: ls -lR external
+
       - name: Download generated source package
         if: steps.built.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v2
