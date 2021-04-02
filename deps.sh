@@ -93,14 +93,14 @@ if [[ ! -d $output ]]; then
     linux)
       # NOTE: This key is expired and it appears from the authors page that this
       #       is intentional.
-      # curl -L https://zv.io/BE4BF7E6811C5BA41345C11EB1D0B4566FBBDB40.asc | gpg --import
+      curl -L https://zv.io/BE4BF7E6811C5BA41345C11EB1D0B4566FBBDB40.asc | gpg --import
 
       toolchain=$triple-native
       toolchain_ver=10.2.1
       curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz"
-      # curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz.sig"
+      curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz.sig"
 
-      # gpg --quiet --verify -- "$toolchain.tgz.sig"
+      gpg --quiet --verify -- "$toolchain.tgz.sig"
       tar xf "$toolchain.tgz"
 
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -o "$toolchain" -t "$triple"
