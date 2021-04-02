@@ -96,7 +96,7 @@ if [[ ! -d $output ]]; then
       # curl -L https://zv.io/BE4BF7E6811C5BA41345C11EB1D0B4566FBBDB40.asc | gpg --import
 
       toolchain=$triple-native
-      toolchain_ver=9.3.0
+      toolchain_ver=10.2.1
       curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz"
       # curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz.sig"
 
