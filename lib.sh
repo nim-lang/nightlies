@@ -41,7 +41,15 @@ os() {
 ## Print architecture from a target triplet.
 arch_from_triple() {
   local triple=$1
-  echo "${triple%%-*}"
+  local arch=${triple%%-*}
+
+  case "$arch" in
+    mingw32)
+      arch=i386
+      ;;
+  esac
+
+  echo "$arch"
 }
 
 ## ncpu
