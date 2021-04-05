@@ -88,6 +88,14 @@ TIMEFORMAT="Took %lR"
 
 cpu=$(arch_from_triple "$($CC -dumpmachine)")
 
+cat <<EOF
+====== Environment Information ======
+CPU: $cpu
+
+C compiler:
+$($CC -v 2>&1)
+EOF
+
 time {
   fold "Build 1-stage csources compiler"
   make "-j$(ncpu)" ucpu="$cpu" CC="$CC"
