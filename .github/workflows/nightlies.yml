@@ -164,25 +164,6 @@ jobs:
           path: nim/output/nim-*.tar.xz
           key: 'source-${{ matrix.setting.commit }}-${{ matrix.setting.build_revision }}'
 
-      - name: Get latest csources version
-        if: steps.nim-cache.outputs.cache-hit != 'true'
-        id: csources-version
-        shell: bash
-        run: |
-          getHash() {
-            git ls-remote "https://github.com/$1" "$2" | cut -f 1
-          }
-
-          echo "::set-output name=commit::$(getHash nim-lang/csources master)"
-
-      - name: Restore csources from cache
-        if: steps.nim-cache.outputs.cache-hit != 'true'
-        id: csources-cache
-        uses: actions/cache@v1
-        with:
-          path: csources/bin
-          key: 'csources-${{ runner.os }}-${{ steps.csources-version.outputs.commit }}'
-
       - name: Checkout Nim
         if: steps.nim-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
@@ -191,13 +172,32 @@ jobs:
           ref: ${{ matrix.setting.commit }}
           path: nim
 
+      - name: Get csources version
+        if: steps.nim-cache.outputs.cache-hit != 'true'
+        id: csources-version
+        shell: bash
+        run: |
+          . nim/config/build_config.txt
+
+          echo "::set-output name=repo::$nim_csourcesUrl"
+          echo "::set-output name=commit::$nim_csourcesHash"
+
+      - name: Restore csources from cache
+        if: steps.nim-cache.outputs.cache-hit != 'true'
+        id: csources-cache
+        uses: actions/cache@v1
+        with:
+          path: csources/bin
+          key: 'csources-${{ runner.os }}-${{ hashFiles(nim/config/build_config.txt) }}'
+
       - name: Checkout csources
         if: >
           steps.nim-cache.outputs.cache-hit != 'true' &&
           steps.csources-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
-          repository: nim-lang/csources
+          repository: ${{ steps.csources-version.outputs.repo }}
+          ref: ${{ steps.csources-version.outputs.commit }}
           path: csources
 
       - name: Setup environment
