@@ -82,7 +82,7 @@ if [[ ! -d $output ]]; then
           exit 1
           ;;
       esac
-      curl -L "https://nim-lang.org/download/mingw$arch-6.3.0.7z" -o "mingw$arch.7z"
+      curl -L "https://nim-lang.org/download/mingw$arch.7z" -o "mingw$arch.7z"
       curl -L "https://nim-lang.org/download/windeps.zip" -o "windeps.zip"
 
       7z x "mingw$arch.7z"
