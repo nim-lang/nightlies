@@ -177,10 +177,19 @@ jobs:
         id: csources-version
         shell: bash
         run: |
-          . nim/config/build_config.txt
+          csources_repo=nim-lang/csources
+          csources_commit=$(git ls-remote "https://github.com/$csources_repo" master)
 
-          echo "::set-output name=repo::$nim_csourcesUrl"
-          echo "::set-output name=commit::$nim_csourcesHash"
+          if [[ -f nim/config/build_config.txt ]]; then
+            . nim/config/build_config.txt
+
+            csources_repo=${nim_csourcesUrl#https://github.com/}
+            csources_repo=${csources_repo%.git}
+            csources_commit=$nim_csourcesHash
+          fi
+
+          echo "::set-output name=repo::$csources_repo"
+          echo "::set-output name=commit::$csources_commit"
 
       - name: Restore csources from cache
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -189,7 +198,7 @@ jobs:
         with:
           path: csources/bin
           key: >
-            csources-${{ runner.os }}-${{ hashFiles('nim/config/build_config.txt') }}
+            csources-${{ runner.os }}-${{ steps.csources-version.outputs.repo }}-${{ steps.csources-version.outputs.commit }}
 
       - name: Checkout csources
         if: >
