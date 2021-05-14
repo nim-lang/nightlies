@@ -188,7 +188,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: csources/bin
-          key: 'csources-${{ runner.os }}-${{ hashFiles(nim/config/build_config.txt) }}'
+          key: >
+            csources-${{ runner.os }}-${{ hashFiles('nim/config/build_config.txt') }}
 
       - name: Checkout csources
         if: >
