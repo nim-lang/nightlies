@@ -21,7 +21,7 @@ jobs:
     env:
       # Bump this value when a rebuild of nightlies (of the
       # same compiler commits) has to be done.
-      nightlies_revision: 3
+      nightlies_revision: 4
 
     steps:
       - name: Checkout nightlies
@@ -129,6 +129,9 @@ jobs:
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
                 jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
+                if [[ "$tag" == version-1-0 ]]; then
+                  jq --null-input --argjson csources "nim-lang/csources" '{ csources: $csources }'
+                fi
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
@@ -177,7 +180,9 @@ jobs:
         id: csources-version
         shell: bash
         run: |
-          csources_repo=nim-lang/csources
+          csources_repo=${{ matrix.setting.csources }}
+          # if one is not set, use csources_v1
+          : "${csources_repo:=nim-lang/csources_v1}"
           csources_commit=$(git ls-remote "https://github.com/$csources_repo" master | cut -f 1)
 
           if [[ -f nim/config/build_config.txt ]]; then
