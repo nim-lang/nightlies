@@ -178,7 +178,7 @@ jobs:
         shell: bash
         run: |
           csources_repo=nim-lang/csources
-          csources_commit=$(git ls-remote "https://github.com/$csources_repo" master)
+          csources_commit=$(git ls-remote "https://github.com/$csources_repo" master | cut -f 1)
 
           if [[ -f nim/config/build_config.txt ]]; then
             . nim/config/build_config.txt
