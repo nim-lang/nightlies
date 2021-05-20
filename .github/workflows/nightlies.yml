@@ -396,7 +396,13 @@ jobs:
         if: steps.built.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          nightlies/build-release.sh 'nim-${{ steps.source.outputs.version }}'
+          if [[ '${{ runner.os }}' == Linux ]]; then
+            # Build nightlies without Internet to ensure that generated source
+            # can be built without Internet.
+            sudo unshare sudo -u "$USER" nightlies/build-release.sh 'nim-${{ steps.source.outputs.version }}'
+          else
+            nightlies/build-release.sh 'nim-${{ steps.source.outputs.version }}'
+          fi
 
       - name: Prepare binaries for uploads
         id: release
