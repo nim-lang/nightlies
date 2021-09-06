@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           # Tracked branches
-          branches=( 'devel' 'version-1-4' 'version-1-2' 'version-1-0' )
+          branches=( 'devel' 'version-1-6' 'version-1-4' 'version-1-2' 'version-1-0' )
 
           getHash() {
             git ls-remote "https://github.com/$1" "$2" | cut -f 1
