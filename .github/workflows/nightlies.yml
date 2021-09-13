@@ -446,24 +446,40 @@ jobs:
     name: 'Update latest tags for ${{ matrix.setting.release }}'
     runs-on: ubuntu-latest
     steps:
+      - name: Store build settings
+        shell: bash
+        run: |
+          cat <<< '${{ toJson(matrix.setting) }}' > setting.json
+
+      - name: Check whether deployment was done for this setting set
+        id: deploy-cache
+        uses: actions/cache@v2
+        with:
+          path: setting.json
+          key: deploy-${{ hashFiles('setting.json') }}-${{ env.nightlies_revision }}
+
       - name: Checkout nightlies
+        if: steps.deploy-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
           path: nightlies
 
       - name: Download generated source package
+        if: steps.deploy-cache.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v2
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
 
       - name: Download built binaries from artifacts
+        if: steps.deploy-cache.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v2
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
           path: binaries
 
       - name: 'Push latest-${{ matrix.setting.branch }} tag'
+        if: steps.deploy-cache.outputs.cache-hit != 'true'
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
