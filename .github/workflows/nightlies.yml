@@ -485,14 +485,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag='latest-${{ matrix.setting.branch }}'
-          aliasFor='${{ matrix.setting.release }}'
-          echo "Deleting release $tag"
-          hub -C nightlies release delete "$tag" || :
-          git -C nightlies push --delete origin "$tag" || :
+          mkdir -p assets
+          source=("$GITHUB_WORKSPACE"/source/*)
+          # Rename the source archive as source.tar.xz
+          mv -v "${source[0]}" "assets/source.tar.xz"
 
-          echo "Create $tag as draft"
-          cat << EOF | hub -C nightlies release create -d -F - "$tag" >/dev/null
-          Latest successful build for branch ${{ matrix.setting.branch }}
+          for artifact in binaries/*; do
+            # Trim version from artifact name
+            shortName=${artifact#*nim-*-}
+            mv -v "$artifact" "assets/$shortName"
+          done
+
+          cat << EOF > release-notes.md
 
           This release is an alias for the latest successful nightly build \
           for branch \`${{ matrix.setting.branch }}\`: https://github.com/${{ github.repository }}/releases/tag/${{ matrix.setting.release }}
@@ -501,18 +505,17 @@ jobs:
           supported architectures.
           EOF
 
-          source=(source/*)
-          mv -v "${source[0]}" "source/source.tar.xz"
-          echo "Uploading ${source[0]} as source.tar.xz"
-          hub -C nightlies release edit -m '' -a "source/source.tar.xz" "$tag"
+          cd nightlies
 
-          for artifact in binaries/*; do
-            # Trim version from artifact name
-            shortName=${artifact#*nim-*-}
-            mv -v "$artifact" "binaries/$shortName"
-            echo "Uploading $artifact as $shortName"
-            hub -C nightlies release edit -m '' -a "binaries/$shortName" "$tag"
-          done
+          # By deleting and recreating the tag, Github recognize it as the true
+          # "latest" tags.
+          echo "Deleting release $tag (errors are ignored)"
+          gh release delete -y "$tag" || :
+          git push --delete origin "$tag" || :
 
           echo "Publishing $tag"
-          hub -C nightlies release edit -m '' --draft=false "$tag"
+          gh release create \
+            -t 'Latest successful build for branch ${{ matrix.setting.branch }}' \
+            -F "$GITHUB_WORKSPACE/release-notes.md" \
+            "$tag" \
+            "$GITHUB_WORKSPACE/assets"/*
