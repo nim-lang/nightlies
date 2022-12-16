@@ -132,6 +132,12 @@ jobs:
                 if [[ "$tag" == version-1-0 ]]; then
                   jq --null-input --argjson csources "nim-lang/csources" '{ csources: $csources }'
                 fi
+                if [[ "$tag" == version-2-0 ]]; then
+                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
+                fi
+                if [[ "$tag" == devel ]]; then
+                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
+                fi
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
