@@ -147,8 +147,8 @@ jobs:
             echo "::endgroup::"
           done
 
-          echo "::set-output name=settings::$(jq -sc '.' settings.json)"
-          echo "::set-output name=deploy::$deploy"
+          echo "settings=$(jq -sc '.' settings.json)" >> $GITHUB_OUTPUT
+          echo "deploy=$deploy" >> $GITHUB_OUTPUT
 
   sourceArchive:
     needs: setup
@@ -199,8 +199,8 @@ jobs:
             csources_commit=$nim_csourcesHash
           fi
 
-          echo "::set-output name=repo::$csources_repo"
-          echo "::set-output name=commit::$csources_commit"
+          echo "repo=$csources_repo" >> $GITHUB_OUTPUT
+          echo "commit=$csources_commit" >> $GITHUB_OUTPUT
 
       - name: Restore csources from cache
         if: steps.nim-cache.outputs.cache-hit != 'true'
@@ -395,7 +395,7 @@ jobs:
               ;;
           esac
 
-          echo "::set-output name=version::$version"
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Setup environment
         if: steps.built.outputs.cache-hit != 'true'
@@ -416,10 +416,10 @@ jobs:
           source nightlies/lib.sh
 
           artifact=$(< output/nim.txt)
-          echo "::set-output name=artifact::$artifact"
+          echo "artifact=$artifact" >> $GITHUB_OUTPUT
           # Github Actions work based on native Windows path, so we're doing
           # some quick conversions here.
-          echo "::set-output name=artifact_nativepath::$(nativepath "$artifact")"
+          echo "artifact_nativepath=$(nativepath "$artifact")" >> $GITHUB_OUTPUT
 
       - name: Upload release binaries
         if: needs.setup.outputs.deploy == 'true'
