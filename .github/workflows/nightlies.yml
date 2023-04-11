@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           # Tracked branches
-          branches=( 'devel' 'version-2-0' 'version-1-6' 'version-1-4' 'version-1-2' 'version-1-0' )
+          branches=( 'devel' 'version-2-0' 'version-1-6' 'version-1-4')
 
           getHash() {
             git ls-remote "https://github.com/$1" "$2" | cut -f 1
@@ -129,9 +129,7 @@ jobs:
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
                 jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
-                if [[ "$tag" == version-1-0 ]]; then
-                  jq --null-input --argjson csources "nim-lang/csources" '{ csources: $csources }'
-                fi
+
                 if [[ "$tag" == version-2-0 ]]; then
                   jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
                 fi
