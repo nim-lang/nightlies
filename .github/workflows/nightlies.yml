@@ -29,6 +29,11 @@ jobs:
         with:
           path: nightlies
 
+      - name: 'Install dependencies'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+
       - name: Generate version matrix
         shell: bash
         run: |
