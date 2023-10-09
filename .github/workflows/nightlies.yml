@@ -286,8 +286,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! hub -C nightlies release show '${{ matrix.setting.release }}' >/dev/null 2>&1; then
-            cat << EOF | hub -C nightlies release create -a nim/output/* -F - '${{ matrix.setting.release }}' >/dev/null
+          if ! gh -C nightlies release show '${{ matrix.setting.release }}' >/dev/null 2>&1; then
+            cat << EOF | gh -C nightlies release create -a nim/output/* -F - '${{ matrix.setting.release }}' >/dev/null
           Nightly build on $(date -u --date="@$SOURCE_CODE_EPOCH" "+%F") for branch ${{ matrix.setting.branch }}
 
           Commit: https://github.com/nim-lang/Nim/commit/${{ matrix.setting.commit }}
@@ -426,8 +426,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd nightlies
-          if ! hub release show -f '%as' '${{ matrix.setting.release }}' | grep "$(basename '${{ steps.release.outputs.artifact }}')" >/dev/null 2>&1; then
-            hub release edit -m '' -a '${{ steps.release.outputs.artifact }}' '${{ matrix.setting.release }}'
+          if ! gh release show -f '%as' '${{ matrix.setting.release }}' | grep "$(basename '${{ steps.release.outputs.artifact }}')" >/dev/null 2>&1; then
+            gh release edit -m '' -a '${{ steps.release.outputs.artifact }}' '${{ matrix.setting.release }}'
           else
             echo "Binary already released for tag '${{ matrix.setting.release }}', not overwritting."
           fi
