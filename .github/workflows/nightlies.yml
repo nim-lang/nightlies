@@ -164,6 +164,11 @@ jobs:
         with:
           path: nightlies
 
+      - name: 'Install dependencies'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+
       - name: Restore Nim from cache
         id: nim-cache
         uses: actions/cache@v3
