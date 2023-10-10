@@ -431,8 +431,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd nightlies
-          if ! hub release show -f '%as' '${{ matrix.setting.release }}' | grep "$(basename '${{ steps.release.outputs.artifact }}')" >/dev/null 2>&1; then
-            hub release edit -m '' -a '${{ steps.release.outputs.artifact }}' '${{ matrix.setting.release }}'
+          if ! gh release view '${{ matrix.setting.release }}' | grep "$(basename '${{ steps.release.outputs.artifact }}')" >/dev/null 2>&1; then
+            gh release upload '${{ matrix.setting.release }}' '${{ steps.release.outputs.artifact }}'
           else
             echo "Binary already released for tag '${{ matrix.setting.release }}', not overwritting."
           fi
