@@ -165,7 +165,10 @@ for pkg in "$@"; do
       ;;
     0)
       echo "Package $pkg not found for triple: $triple"
-      exit 1
+      if [[ $triple != "arm64-apple" ]]; then
+        exit 1
+      fi
+      
       ;;
     *)
       echo "Ambiguous triple '$triple'" >&2
