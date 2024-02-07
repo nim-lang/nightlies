@@ -341,6 +341,10 @@ jobs:
           - target:
               os: windows
             builder: windows-2019
+          - target:
+              os: macosx
+              triple: arm64-apple-m1
+            builder: macos-14
 
     env: ${{ matrix.setting.environment }}
     name: '${{ matrix.target.triple }} (${{ matrix.setting.branch }}, ${{ matrix.setting.commit }})'
