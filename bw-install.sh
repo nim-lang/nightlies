@@ -110,7 +110,7 @@ fragment assetFields on ReleaseAsset {
     getAssets=$getAssetsExact
   fi
 
-  resp=$(hub api --paginate graphql "${hubParams[@]}") || exit 1
+  resp=$(gh api graphql --paginate "${hubParams[@]}") || exit 1
 
   if [[ $(jq 'has("errors")' <<< "$resp") == true ]]; then
     jq -r '.errors[] | .message' <<< "$resp" >&2
