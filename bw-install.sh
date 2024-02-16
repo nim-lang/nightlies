@@ -110,7 +110,7 @@ fragment assetFields on ReleaseAsset {
     getAssets=$getAssetsExact
   fi
 
-  resp=$(hub api --paginate graphql "${hubParams[@]}") || exit 1
+  resp=$(gh api graphql --paginate "${hubParams[@]}") || exit 1
 
   if [[ $(jq 'has("errors")' <<< "$resp") == true ]]; then
     jq -r '.errors[] | .message' <<< "$resp" >&2
@@ -158,6 +158,11 @@ fi
 mkdir -p "$output" || exit 1
 cd "$output" || exit 1
 
+if [[ $triple == "arm64-apple" ]]; then
+  brew install pcre
+  exit 0
+fi
+
 for pkg in "$@"; do
   asset=$(getAsset "$pkg") || exit 1
   case "$(jq 'length' <<< "$asset")" in
@@ -166,6 +171,7 @@ for pkg in "$@"; do
     0)
       echo "Package $pkg not found for triple: $triple"
       exit 1
+      
       ;;
     *)
       echo "Ambiguous triple '$triple'" >&2

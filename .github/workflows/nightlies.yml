@@ -327,6 +327,8 @@ jobs:
             triple: armv7l-linux-musleabihf
           - os: macosx
             triple: x86_64-apple-darwin14
+          - os: macosx_arm64
+            triple: arm64-apple
           - os: windows
             triple: x86_64-w64-mingw32
           - os: windows
@@ -341,6 +343,9 @@ jobs:
           - target:
               os: windows
             builder: windows-2019
+          - target:
+              os: macosx_arm64
+            builder: macos-14
 
     env: ${{ matrix.setting.environment }}
     name: '${{ matrix.target.triple }} (${{ matrix.setting.branch }}, ${{ matrix.setting.commit }})'
