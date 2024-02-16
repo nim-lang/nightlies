@@ -158,6 +158,10 @@ fi
 mkdir -p "$output" || exit 1
 cd "$output" || exit 1
 
+if [[ $triple != "arm64-apple"]]; then
+  exit 0
+fi
+
 for pkg in "$@"; do
   asset=$(getAsset "$pkg") || exit 1
   case "$(jq 'length' <<< "$asset")" in
@@ -165,9 +169,7 @@ for pkg in "$@"; do
       ;;
     0)
       echo "Package $pkg not found for triple: $triple"
-      if [[ $triple != "arm64-apple" ]]; then
-        exit 1
-      fi
+      exit 1
       
       ;;
     *)
