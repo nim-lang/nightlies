@@ -144,7 +144,7 @@ case "$(os)" in
         libdir="/opt/homebrew/lib"
       else
         libdir=$(realpath lib)
-      fin
+      fi
       cflags+=(-target "$triple")
     fi
     libs+=(libssl.a libcrypto.a libpcre.a libsqlite3.a)
