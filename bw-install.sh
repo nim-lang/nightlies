@@ -159,7 +159,6 @@ mkdir -p "$output" || exit 1
 cd "$output" || exit 1
 
 if [[ $triple == "arm64-apple" ]]; then
-  brew install pcre
   exit 0
 fi
 
