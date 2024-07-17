@@ -304,7 +304,7 @@ jobs:
           fi
 
       - name: Upload source archive to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
@@ -376,7 +376,7 @@ jobs:
 
       - name: Download generated source package
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
@@ -438,7 +438,7 @@ jobs:
           fi
 
       - name: Upload binaries to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
@@ -475,14 +475,14 @@ jobs:
 
       - name: Download generated source package
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
 
       - name: Download built binaries from artifacts
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
           path: binaries
