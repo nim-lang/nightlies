@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           # Tracked branches
-          branches=( 'devel' 'version-2-0' 'version-1-6')
+          branches=('devel' 'version-2-2' 'version-2-0')
 
           getHash() {
             git ls-remote "https://github.com/$1" "$2" | cut -f 1
@@ -129,13 +129,7 @@ jobs:
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
                 jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
-
-                if [[ "$tag" == version-2-0 ]]; then
-                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
-                fi
-                if [[ "$tag" == devel ]]; then
-                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
-                fi
+                jq --null-input --arg csources "nim-lang/csources_v2" '{ csources: $csources }'
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
@@ -190,8 +184,8 @@ jobs:
         shell: bash
         run: |
           csources_repo=${{ matrix.setting.csources }}
-          # if one is not set, use csources_v1
-          : "${csources_repo:=nim-lang/csources_v1}"
+          # if one is not set, use csources_v2
+          : "${csources_repo:=nim-lang/csources_v2}"
           csources_commit=$(git ls-remote "https://github.com/$csources_repo" master | cut -f 1)
 
           if [[ -f nim/config/build_config.txt ]]; then
