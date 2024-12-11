@@ -302,6 +302,7 @@ jobs:
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
+          overwrite: true
 
   build:
     needs: [ setup, sourceArchive ]
@@ -436,6 +437,7 @@ jobs:
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
+          overwrite: true
 
   latestTag:
     needs: [ setup, build ]
