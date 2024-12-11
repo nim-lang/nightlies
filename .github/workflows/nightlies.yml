@@ -302,7 +302,6 @@ jobs:
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
-          overwrite: true
 
   build:
     needs: [ setup, sourceArchive ]
@@ -435,9 +434,8 @@ jobs:
       - name: Upload binaries to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
+          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
-          overwrite: true
 
   latestTag:
     needs: [ setup, build ]
@@ -480,7 +478,7 @@ jobs:
         if: steps.deploy-cache.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
-          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
+          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
           path: binaries
 
       - name: 'Push latest-${{ matrix.setting.branch }} tag'
