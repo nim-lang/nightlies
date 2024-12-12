@@ -478,7 +478,8 @@ jobs:
         if: steps.deploy-cache.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
-          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
+          pattern: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-*'
+          merge-multiple: true
           path: binaries
 
       - name: 'Push latest-${{ matrix.setting.branch }} tag'
