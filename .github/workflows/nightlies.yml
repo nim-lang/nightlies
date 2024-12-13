@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           # Tracked branches
-          branches=( 'devel' 'version-2-0' 'version-1-6')
+          branches=('devel' 'version-2-2' 'version-2-0')
 
           getHash() {
             git ls-remote "https://github.com/$1" "$2" | cut -f 1
@@ -129,13 +129,7 @@ jobs:
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
                 jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
-
-                if [[ "$tag" == version-2-0 ]]; then
-                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
-                fi
-                if [[ "$tag" == devel ]]; then
-                  jq --null-input --argjson csources "nim-lang/csources_v2" '{ csources: $csources }'
-                fi
+                jq --null-input --arg csources "nim-lang/csources_v2" '{ csources: $csources }'
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
@@ -190,8 +184,8 @@ jobs:
         shell: bash
         run: |
           csources_repo=${{ matrix.setting.csources }}
-          # if one is not set, use csources_v1
-          : "${csources_repo:=nim-lang/csources_v1}"
+          # if one is not set, use csources_v2
+          : "${csources_repo:=nim-lang/csources_v2}"
           csources_commit=$(git ls-remote "https://github.com/$csources_repo" master | cut -f 1)
 
           if [[ -f nim/config/build_config.txt ]]; then
@@ -304,7 +298,7 @@ jobs:
           fi
 
       - name: Upload source archive to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
@@ -339,7 +333,7 @@ jobs:
             builder: ubuntu-20.04
           - target:
               os: macosx
-            builder: macos-12
+            builder: macos-13
           - target:
               os: windows
             builder: windows-2019
@@ -381,7 +375,7 @@ jobs:
 
       - name: Download generated source package
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
@@ -443,9 +437,9 @@ jobs:
           fi
 
       - name: Upload binaries to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
+          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
 
   latestTag:
@@ -480,16 +474,17 @@ jobs:
 
       - name: Download generated source package
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
 
       - name: Download built binaries from artifacts
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}'
+          pattern: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-*'
+          merge-multiple: true
           path: binaries
 
       - name: 'Push latest-${{ matrix.setting.branch }} tag'
