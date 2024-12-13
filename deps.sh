@@ -142,7 +142,7 @@ case "$(os)" in
       echo "-d:nimUse64BitCTime" >> nim.cfg
     else
       if [[ $triple == "arm64-apple" ]]; then
-        libdir=$(readlink -f lib)
+        libdir="/opt/homebrew/lib"
       else
         libdir=$(realpath lib)
       fi
