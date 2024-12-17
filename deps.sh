@@ -106,6 +106,7 @@ if [[ ! -d $output ]]; then
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -o "$toolchain" -t "$triple"
       ;;
     darwin)
+      brew install coreutils
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -t "$triple"
       ;;
   esac
@@ -140,7 +141,11 @@ case "$(os)" in
       # Starting from musl 1.2.0, time_t is 64 bit on all arches
       echo "-d:nimUse64BitCTime" >> nim.cfg
     else
-      libdir=$(realpath lib)
+      if [[ $triple == "arm64-apple" ]]; then
+        libdir="/opt/homebrew/lib"
+      else
+        libdir=$(realpath lib)
+      fi
       cflags+=(-target "$triple")
     fi
     libs+=(libssl.a libcrypto.a libpcre.a libsqlite3.a)
