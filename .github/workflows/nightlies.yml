@@ -64,7 +64,7 @@ jobs:
         run: |
           deploy=false
           case '${{ github.event_name }}' in
-            schedule)
+            schedule | workflow_dispatch)
               deploy=true
               ;;
             push)
