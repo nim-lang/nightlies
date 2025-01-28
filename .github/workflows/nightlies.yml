@@ -9,6 +9,7 @@ on:
       - '*'
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   setup:
@@ -63,7 +64,7 @@ jobs:
         run: |
           deploy=false
           case '${{ github.event_name }}' in
-            schedule)
+            schedule | workflow_dispatch)
               deploy=true
               ;;
             push)
