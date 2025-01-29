@@ -106,7 +106,7 @@ if [[ ! -d $output ]]; then
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -o "$toolchain" -t "$triple"
       ;;
     darwin)
-      brew install coreutils sqlite pcre2
+      brew install coreutils sqlite pcre2 pcre
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -t "$triple"
       ;;
   esac
@@ -157,8 +157,8 @@ case "$(os)" in
         file $(brew --prefix sqlite)/lib/libsqlite3*.dylib 
         echo "PCRE_LIB:"
         file $PCRE_LIB
-        file $(brew --prefix pcre2)/lib/libpcre2*.dylib
-        PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-32.a
+        file $(brew --prefix pcre)/lib/libpcre*.dylib
+        PCRE_LIB=$(brew --prefix pcre)/lib/libpcre.a
 
         libdir="/opt/homebrew/lib"
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
