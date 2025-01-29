@@ -154,8 +154,10 @@ case "$(os)" in
         echo "LIBS: "
         echo "SQL_LIB:"
         file $SQL_LIB
+        file $(brew --prefix sqlite)/lib/libsqlite3*.dylib 
         echo "PCRE_LIB:"
         file $PCRE_LIB
+        file $(brew --prefix pcre2)/lib/libpcre2*.dylib
         PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-32.a
 
         libdir="/opt/homebrew/lib"
