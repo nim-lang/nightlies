@@ -312,9 +312,21 @@ jobs:
       matrix:
         setting: ${{ fromJson(needs.setup.outputs.settings) }}
         target:
+          - os: linux
+            triple: x86_64-linux-musl
+          - os: linux
+            triple: i686-linux-musl
           - os: macosx
             triple: x86_64-apple-darwin14
+          - os: macosx_arm64
+            triple: arm64-apple-darwin24.2.0
         include:
+          - target:
+              os: linux
+            builder: ubuntu-20.04
+          - target:
+              os: macosx
+            builder: macos-13
           - target:
               os: macosx_arm64
             builder: macos-15
