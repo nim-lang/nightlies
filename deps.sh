@@ -106,7 +106,7 @@ if [[ ! -d $output ]]; then
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -o "$toolchain" -t "$triple"
       ;;
     darwin)
-      brew install coreutils
+      brew install coreutils sqlite pcre2
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -t "$triple"
       ;;
   esac
