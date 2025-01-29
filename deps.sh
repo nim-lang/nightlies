@@ -145,10 +145,6 @@ case "$(os)" in
         echo "OS: ", $(os)
         echo "HOMEBREW: "
         ls /opt/homebrew/lib
-        find /opt/homebrew/lib | grep -i sqlite
-        find /opt/homebrew/lib | grep -i pcre
-        echo "DEPS.SH: lib: " $PWD
-        echo "DEPS.SH: realpath lib: " $(realpath lib)
         libdir="/opt/homebrew/lib"
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
       else
