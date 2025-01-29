@@ -154,7 +154,6 @@ case "$(os)" in
         echo "LIBS: "
         libdir="/opt/homebrew/lib"
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
-        libs+=(libpcre-posix.a)
         ldflags+=("${SQL_LIB}" "${PCRE_LIB}")
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
       else
