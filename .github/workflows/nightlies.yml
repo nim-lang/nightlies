@@ -323,7 +323,7 @@ jobs:
           - os: macosx
             triple: x86_64-apple-darwin14
           - os: macosx_arm64
-            triple: arm64-apple
+            triple: arm64-apple-darwin24.2.0
           - os: windows
             triple: x86_64-w64-mingw32
           - os: windows
