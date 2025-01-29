@@ -166,6 +166,7 @@ case "$(os)" in
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
         ldflags+=("${SQL_LIB}")
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
+        echo "-d:useOpenssl3" >> nim.cfg
       else
         libdir=$(realpath lib)
         libs+=(libsqlite3.a)
