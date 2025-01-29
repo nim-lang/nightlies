@@ -150,7 +150,7 @@ case "$(os)" in
         echo "BREW PCRE2: "
         find $(brew --prefix pcre2)/
         SQL_LIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
-        PCRE_LIB=$(brew --prefix sqlite)/lib/libpcre2-posix.a
+        PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-posix.a
         echo "LIBS: "
         libdir="/opt/homebrew/lib"
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
