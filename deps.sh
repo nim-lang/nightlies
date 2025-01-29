@@ -143,29 +143,10 @@ case "$(os)" in
       echo "-d:nimUse64BitCTime" >> nim.cfg
     else
       if [[ $triple == "arm64-apple-darwin24.2.0" ]]; then
-        echo "OS: ", $(os)
-        echo "HOMEBREW: "
-        echo "BREW SQLITE: "
-        find $(brew --prefix sqlite)/
-        # echo "BREW PCRE2: "
-        # find $(brew --prefix pcre2)/
         SQL_LIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
-        # PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-posix.a
-        echo "LIBS: "
-        echo "SQL_LIB:"
-        file $SQL_LIB
-        file $(brew --prefix sqlite)/lib/libsqlite3*.dylib 
-        echo "SSL:"
-        nm $(brew --prefix openssl)/lib/libssl*.a 
-        # echo "PCRE_LIB:"
-        # file $PCRE_LIB
-        # file $(brew --prefix pcre)/lib/libpcre*.dylib
-        # PCRE_LIB=$(brew --prefix pcre)/lib/libpcre.a
-
         libdir="/opt/homebrew/lib"
-        # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
-        ldflags+=("${SQL_LIB}")
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
+        ldflags+=("${SQL_LIB}")
         echo "-d:useOpenssl3" >> nim.cfg
       else
         libdir=$(realpath lib)
