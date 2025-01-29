@@ -142,13 +142,13 @@ case "$(os)" in
       echo "-d:nimUse64BitCTime" >> nim.cfg
     else
       if [[ $triple == "arm64-apple-darwin24.2.0" ]]; then
-        echo "DEPS.SH: lib: ", lib
-        echo "DEPS.SH: realpath lib: ", realpathlib
-        # libdir="/opt/homebrew/lib"
-        libdir=$(realpath lib)
-        cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
         echo "HOMEBREW: "
         find /opt/homebrew/lib
+        echo "DEPS.SH: lib: " $PWD
+        echo "DEPS.SH: realpath lib: " $(realpath lib)
+        libdir="/opt/homebrew/lib"
+        libdir=$(realpath lib)
+        cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
       else
         libdir=$(realpath lib)
       fi
