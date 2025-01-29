@@ -152,6 +152,11 @@ case "$(os)" in
         SQL_LIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
         PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-posix.a
         echo "LIBS: "
+        echo "SQL_LIB:"
+        file $SQL_LIB
+        echo "PCRE_LIB:"
+        file $PCRE_LIB
+
         libdir="/opt/homebrew/lib"
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
         ldflags+=("${SQL_LIB}" "${PCRE_LIB}")
