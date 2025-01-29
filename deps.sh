@@ -156,6 +156,7 @@ case "$(os)" in
         file $SQL_LIB
         echo "PCRE_LIB:"
         file $PCRE_LIB
+        PCRE_LIB=$(brew --prefix pcre2)/lib/libpcre2-32.a
 
         libdir="/opt/homebrew/lib"
         # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
