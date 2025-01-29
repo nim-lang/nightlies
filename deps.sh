@@ -155,6 +155,8 @@ case "$(os)" in
         echo "SQL_LIB:"
         file $SQL_LIB
         file $(brew --prefix sqlite)/lib/libsqlite3*.dylib 
+        echo "SSL:"
+        nm $(brew --prefix openssl)/lib/libssl*.a 
         # echo "PCRE_LIB:"
         # file $PCRE_LIB
         # file $(brew --prefix pcre)/lib/libpcre*.dylib
