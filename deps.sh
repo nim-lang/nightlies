@@ -137,6 +137,7 @@ case "$(os)" in
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           ;;
       esac
+      libs+=(libpcre.a)
 
       # Starting from musl 1.2.0, time_t is 64 bit on all arches
       echo "-d:nimUse64BitCTime" >> nim.cfg
@@ -144,16 +145,26 @@ case "$(os)" in
       if [[ $triple == "arm64-apple-darwin24.2.0" ]]; then
         echo "OS: ", $(os)
         echo "HOMEBREW: "
-        ls /opt/homebrew/lib
+        echo "BREW SQLITE: "
+        find $(brew --prefix sqlite)/
+        echo "BREW PCRE2: "
+        find $(brew --prefix pcre2)/
+        SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
+        echo "LIBS: "
         libdir="/opt/homebrew/lib"
+        # SQLLIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
+        libs+=(libpcre-posix.a)
+        ldflags+=("${SQLLIB}")
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
       else
         libdir=$(realpath lib)
+        libs+=(libpcre.a)
       fi
       cflags+=(-target "$triple")
     fi
-    libs+=(libssl.a libcrypto.a libpcre.a libsqlite3.a)
+    libs+=(libssl.a libcrypto.a libsqlite3.a)
     ldflags+=("${libs[@]/#/$libdir/}")
+    echo "LDFLAGS_VAR: " "${ldflags[*]}"
 
     cat <<EOF >> nim.cfg
 dynlibOverride="ssl"
