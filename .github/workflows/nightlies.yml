@@ -14,7 +14,7 @@ on:
 jobs:
   setup:
     name: 'build settings'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       settings: ${{ steps.settings.outputs.settings }}
       deploy: ${{ steps.settings.outputs.deploy }}
@@ -151,7 +151,7 @@ jobs:
       matrix:
         setting: ${{ fromJson(needs.setup.outputs.settings) }}
     name: 'source (${{ matrix.setting.branch }}, ${{ matrix.setting.commit }})'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env: ${{ matrix.setting.environment }}
     steps:
       - name: Checkout nightlies
@@ -329,7 +329,7 @@ jobs:
         include:
           - target:
               os: linux
-            builder: ubuntu-20.04
+            builder: ubuntu-22.04
           - target:
               os: macosx
             builder: macos-13
@@ -448,7 +448,7 @@ jobs:
 
     if: needs.setup.outputs.deploy == 'true'
     name: 'Update latest tags for ${{ matrix.setting.release }}'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Store build settings
         shell: bash
