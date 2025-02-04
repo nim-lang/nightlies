@@ -106,8 +106,6 @@ if [[ ! -d $output ]]; then
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -o "$toolchain" -t "$triple"
       ;;
     darwin)
-      brew update
-      brew install coreutils sqlite pcre pcre2
       xargs < "$basedir/buildreq.txt" "$basedir/bw-install.sh" -t "$triple"
       ;;
   esac
@@ -144,6 +142,8 @@ case "$(os)" in
       echo "-d:nimUse64BitCTime" >> nim.cfg
     else
       if [[ $triple == "arm64-apple-darwin24.2.0" ]]; then
+        brew update
+        brew install coreutils sqlite pcre pcre2
         SQL_LIB=$(brew --prefix sqlite)/lib/libsqlite3.a 
         libdir="/opt/homebrew/lib"
         cflags+=(-isysroot /Applications/Xcode_16.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
