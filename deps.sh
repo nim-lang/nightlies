@@ -130,7 +130,7 @@ case "$(os)" in
       libdir=$(realpath "$triple-native/lib")
       ldflags+=(-static)
       case "$(arch_from_triple "$triple")" in
-        i?86 | amd64)
+        i?86 | amd64 | aarch64)
           ;; # Native
         *)
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
