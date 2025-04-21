@@ -316,8 +316,8 @@ jobs:
             triple: x86_64-linux-musl
           - os: linux
             triple: i686-linux-musl
-          - os: linux
-            triple: aarch64-linux-musl
+          #- os: linux
+          #  triple: aarch64-linux-musl
           - os: linux
             triple: armv7l-linux-musleabihf
           - os: macosx
