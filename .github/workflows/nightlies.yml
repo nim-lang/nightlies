@@ -316,7 +316,7 @@ jobs:
             triple: x86_64-linux-musl
           - os: linux
             triple: i686-linux-musl
-          - os: linux
+          - os: linux_arm64
             triple: aarch64-linux-musl
           - os: linux
             triple: armv7l-linux-musleabihf
@@ -341,6 +341,9 @@ jobs:
           - target:
               os: macosx_arm64
             builder: macos-15
+          - target:
+              os: linux_arm64
+            builder: ubuntu-22.04-arm
 
     env: ${{ matrix.setting.environment }}
     name: '${{ matrix.target.triple }} (${{ matrix.setting.branch }}, ${{ matrix.setting.commit }})'
