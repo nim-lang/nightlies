@@ -337,7 +337,7 @@ jobs:
             builder: macos-13
           - target:
               os: windows
-            builder: windows-2019
+            builder: windows-2025
           - target:
               os: macosx_arm64
             builder: macos-15
