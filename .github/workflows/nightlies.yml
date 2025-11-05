@@ -334,7 +334,7 @@ jobs:
             builder: ubuntu-22.04
           - target:
               os: macosx
-            builder: macos-13
+            builder: macos-15-intel
           - target:
               os: windows
             builder: windows-2025
