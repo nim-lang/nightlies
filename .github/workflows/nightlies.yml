@@ -22,7 +22,7 @@ jobs:
     env:
       # Bump this value when a rebuild of nightlies (of the
       # same compiler commits) has to be done.
-      nightlies_revision: 5
+      nightlies_revision: 4
 
     steps:
       - name: Checkout nightlies
