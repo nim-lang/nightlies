@@ -299,7 +299,7 @@ jobs:
           fi
 
       - name: Upload source archive to artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
@@ -441,7 +441,7 @@ jobs:
           fi
 
       - name: Upload binaries to artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
