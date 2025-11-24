@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout nightlies
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: nightlies
 
@@ -155,7 +155,7 @@ jobs:
     env: ${{ matrix.setting.environment }}
     steps:
       - name: Checkout nightlies
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: nightlies
 
@@ -173,7 +173,7 @@ jobs:
 
       - name: Checkout Nim
         if: steps.nim-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: nim-lang/Nim
           ref: ${{ matrix.setting.commit }}
@@ -213,7 +213,7 @@ jobs:
         if: >
           steps.nim-cache.outputs.cache-hit != 'true' &&
           steps.csources-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: ${{ steps.csources-version.outputs.repo }}
           ref: ${{ steps.csources-version.outputs.commit }}
@@ -350,7 +350,7 @@ jobs:
     runs-on: ${{ matrix.builder }}
     steps:
       - name: Checkout build scripts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: nightlies
 
@@ -472,7 +472,7 @@ jobs:
 
       - name: Checkout nightlies
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: nightlies
 
