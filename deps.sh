@@ -96,7 +96,7 @@ if [[ ! -d $output ]]; then
       # curl -L https://zv.io/BE4BF7E6811C5BA41345C11EB1D0B4566FBBDB40.asc | gpg --import
 
       toolchain=$triple-native
-      toolchain_ver=11.2.1
+      toolchain_ver=10.2.1
       curl -LO "https://github.com/planetis-m/nim-deb/releases/download/toolchains-v1/$toolchain.tgz"
       # curl -LO "https://more.musl.cc/$toolchain_ver/i686-linux-musl/$toolchain.tgz.sig"
 
