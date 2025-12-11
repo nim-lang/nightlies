@@ -14,7 +14,7 @@ on:
 jobs:
   setup:
     name: 'build settings'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       settings: ${{ steps.settings.outputs.settings }}
       deploy: ${{ steps.settings.outputs.deploy }}
