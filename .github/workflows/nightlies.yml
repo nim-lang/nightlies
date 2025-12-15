@@ -50,7 +50,7 @@ jobs:
           } | jq -s '.' | tee versions.json
 
       - name: Restore build settings
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: settings
           key: build-settings-${{ hashFiles('versions.json') }}-${{ env.nightlies_revision }}
@@ -166,7 +166,7 @@ jobs:
 
       - name: Restore Nim from cache
         id: nim-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: nim/output/nim-*.tar.xz
           key: 'source-${{ matrix.setting.commit }}-${{ matrix.setting.build_revision }}'
@@ -203,7 +203,7 @@ jobs:
       - name: Restore csources from cache
         if: steps.nim-cache.outputs.cache-hit != 'true'
         id: csources-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: csources/bin
           key: >
@@ -356,7 +356,7 @@ jobs:
 
       - name: Cache build outputs
         id: built
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: output
           key: >
@@ -364,7 +364,7 @@ jobs:
 
       - name: Cache dependencies
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: external
           key: >
@@ -465,7 +465,7 @@ jobs:
 
       - name: Check whether deployment was done for this setting set
         id: deploy-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: setting.json
           key: deploy-${{ hashFiles('setting.json') }}-${{ env.nightlies_revision }}
