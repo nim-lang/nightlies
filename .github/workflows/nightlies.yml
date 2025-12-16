@@ -379,7 +379,7 @@ jobs:
 
       - name: Download generated source package
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
@@ -478,14 +478,14 @@ jobs:
 
       - name: Download generated source package
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
 
       - name: Download built binaries from artifacts
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-*'
           merge-multiple: true
