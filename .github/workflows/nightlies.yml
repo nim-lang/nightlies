@@ -50,7 +50,7 @@ jobs:
           } | jq -s '.' | tee versions.json
 
       - name: Restore build settings
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: settings
           key: build-settings-${{ hashFiles('versions.json') }}-${{ env.nightlies_revision }}
@@ -170,7 +170,7 @@ jobs:
 
       - name: Restore Nim from cache
         id: nim-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: nim/output/nim-*.tar.xz
           key: 'source-${{ matrix.setting.commit }}-${{ matrix.setting.build_revision }}'
@@ -207,7 +207,7 @@ jobs:
       - name: Restore csources from cache
         if: steps.nim-cache.outputs.cache-hit != 'true'
         id: csources-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: csources/bin
           key: >
@@ -303,7 +303,7 @@ jobs:
           fi
 
       - name: Upload source archive to artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: nim/output/*
@@ -360,7 +360,7 @@ jobs:
 
       - name: Cache build outputs
         id: built
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: output
           key: >
@@ -368,7 +368,7 @@ jobs:
 
       - name: Cache dependencies
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: external
           key: >
@@ -383,7 +383,7 @@ jobs:
 
       - name: Download generated source package
         if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
@@ -445,7 +445,7 @@ jobs:
           fi
 
       - name: Upload binaries to artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-${{ matrix.target.triple }}'
           path: '${{ steps.release.outputs.artifact_nativepath }}'
@@ -469,7 +469,7 @@ jobs:
 
       - name: Check whether deployment was done for this setting set
         id: deploy-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: setting.json
           key: deploy-${{ hashFiles('setting.json') }}-${{ env.nightlies_revision }}
@@ -482,14 +482,14 @@ jobs:
 
       - name: Download generated source package
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'nim-${{ matrix.setting.commit }}'
           path: source
 
       - name: Download built binaries from artifacts
         if: steps.deploy-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: 'binaries-${{ matrix.setting.branch }}-${{ matrix.setting.commit }}-*'
           merge-multiple: true
