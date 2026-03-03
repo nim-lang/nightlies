@@ -130,7 +130,11 @@ jobs:
                 jq --null-input --arg tag "$tag" '{ release: $tag }'
                 jq --null-input --argjson nightlies_revision "$nightlies_revision" '{ nightlies_revision: $nightlies_revision }'
                 jq --null-input --argjson build_revision "$buildRevision" '{ build_revision: $build_revision }'
-                jq --null-input --arg csources "nim-lang/csources_v2" '{ csources: $csources }'
+                if [[ "$tag" == devel ]]; then
+                  jq --null-input --arg csources "nim-lang/csources_v3" '{ csources: $csources }'
+                else
+                  jq --null-input --arg csources "nim-lang/csources_v2" '{ csources: $csources }'
+                fi
 
               } | jq -s --arg commit "$commit" 'reduce .[] as $item ({ commit: $commit }; . + $item)' > "settings/$branch.json"
             else
