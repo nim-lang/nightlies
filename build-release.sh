@@ -136,6 +136,21 @@ time {
   endfold
 }
 
+# koch builds nifler and nifmake with --skipUserCfg, so they miss the
+# toolchain configuration above (-static on Linux) and end up dynamically
+# linked against musl. Rebuild them here with our configuration. koch stamps
+# them with the nimony commit, so later koch invocations keep these binaries.
+for tool in nifler nifmake; do
+  if [[ -e dist/nimony/src/$tool/$tool.nim ]]; then
+    time {
+      fold "Build $tool"
+      nim c -d:release --noNimblePath --skipParentCfg \
+        --outdir:bin "dist/nimony/src/$tool/$tool.nim"
+      endfold
+    }
+  fi
+done
+
 versionRegex='^Nim Compiler Version ([0-9]+\.[0-9]+\.[0-9]+) \[([a-zA-Z0-9]+): [a-zA-Z0-9]+\]'
 if [[ $(nim --version 2>&1) =~ $versionRegex ]]; then
   version=${BASH_REMATCH[1]}
